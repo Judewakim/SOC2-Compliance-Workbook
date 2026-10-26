@@ -161,3 +161,18 @@ def test_evidence_is_captured_for_every_call(session):
     res = run(session, "DATA-05")
     assert res.evidence and res.evidence[0].operation == "get_ebs_encryption_by_default"
     assert res.evidence[0].captured_at
+
+
+def test_open_ssh_group_says_whether_it_is_in_use(session):
+    ec2 = session.client("ec2")
+    vpc = ec2.describe_vpcs()["Vpcs"][0]["VpcId"]
+    subnet = ec2.describe_subnets(Filters=[{"Name": "vpc-id", "Values": [vpc]}])["Subnets"][0]["SubnetId"]
+    perm = {"IpProtocol": "tcp", "FromPort": 22, "ToPort": 22, "IpRanges": [{"CidrIp": "0.0.0.0/0"}]}
+    used = ec2.create_security_group(GroupName="used", Description="u", VpcId=vpc)["GroupId"]
+    idle = ec2.create_security_group(GroupName="idle", Description="i", VpcId=vpc)["GroupId"]
+    for g in (used, idle):
+        ec2.authorize_security_group_ingress(GroupId=g, IpPermissions=[perm])
+    ec2.create_network_interface(SubnetId=subnet, Groups=[used])
+    details = {f.resource.split()[0]: f.detail for f in run(session, "NET-01").findings}
+    assert "attached to a running resource" in details[used]
+    assert "safe to delete" in details[idle]

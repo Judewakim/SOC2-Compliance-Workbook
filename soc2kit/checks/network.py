@@ -33,16 +33,23 @@ def _exposed_admin_ports(perm: dict) -> list[str]:
     severity=Severity.CRITICAL,
     service="ec2",
     scope="regional",
-    permissions=["ec2:DescribeSecurityGroups"],
-    remediation="Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
+    permissions=["ec2:DescribeSecurityGroups", "ec2:DescribeNetworkInterfaces"],
+    remediation=("Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range. "
+                 "Groups not attached to anything can simply be deleted."),
 )
 def no_open_admin_ports(ctx: CheckContext):
     findings = []
+    in_use = {g["GroupId"] for eni in ctx.paginate("ec2", "describe_network_interfaces", "NetworkInterfaces")
+              for g in eni.get("Groups", [])}
     for sg in ctx.paginate("ec2", "describe_security_groups", "SecurityGroups"):
         exposed = sorted({p for perm in sg.get("IpPermissions", []) for p in _exposed_admin_ports(perm)})
+        if exposed:
+            usage = "attached to a running resource" if sg["GroupId"] in in_use else "not attached to anything, safe to delete"
+            detail = f"Open to internet: {', '.join(exposed)} ({usage})"
+        else:
+            detail = "No open admin ports"
         findings.append(Finding(f"{sg['GroupId']} ({sg.get('GroupName', '')})",
-                                Status.FAIL if exposed else Status.PASS,
-                                f"Open to internet: {', '.join(exposed)}" if exposed else "No open admin ports"))
+                                Status.FAIL if exposed else Status.PASS, detail))
     return findings
 
 

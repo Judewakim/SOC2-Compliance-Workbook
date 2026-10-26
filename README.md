@@ -54,7 +54,7 @@ testing, vendor management, and so on), because most of a SOC 2 audit is process
 ```mermaid
 flowchart LR
     subgraph Target["Your AWS account"]
-        Role["soc2kit-readonly role<br/>35 read-only actions<br/>External ID required"]
+        Role["soc2kit-readonly role<br/>36 read-only actions<br/>External ID required"]
         APIs["IAM · CloudTrail · Config · GuardDuty<br/>Security Hub · S3 · EC2 · RDS · KMS · Backup"]
         Role --> APIs
     end

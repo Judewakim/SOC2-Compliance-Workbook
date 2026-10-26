@@ -10,8 +10,8 @@ window.SOC2KIT_SAMPLE = {
   "us-east-1",
   "us-west-2"
  ],
- "started_at": "2026-10-26T15:22:10Z",
- "finished_at": "2026-10-26T15:22:13Z",
+ "started_at": "2026-10-26T15:36:26Z",
+ "finished_at": "2026-10-26T15:36:29Z",
  "score": 27,
  "counts": {
   "PASS": 8,
@@ -113,12 +113,12 @@ window.SOC2KIT_SAMPLE = {
    "failed_resources": [
     {
      "region": "us-east-1",
-     "resource": "sg-66222b5123eb54f73 (bastion)",
-     "detail": "Open to internet: SSH (22)"
+     "resource": "sg-6849222529ab1c680 (bastion)",
+     "detail": "Open to internet: SSH (22) (not attached to anything, safe to delete)"
     }
    ],
    "errors": [],
-   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
+   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range. Groups not attached to anything can simply be deleted.",
    "evidence_files": [
     "evidence/NET-01__us-east-1.json",
     "evidence/NET-01__us-west-2.json"
@@ -483,7 +483,7 @@ window.SOC2KIT_SAMPLE = {
    "failed_resources": [
     {
      "region": "us-east-1",
-     "resource": "arn:aws:kms:us-east-1:123456789012:key/796fe191-66ff-4c30-b1bc-7e6d8fc811b2",
+     "resource": "arn:aws:kms:us-east-1:123456789012:key/c14e29de-6356-4a5e-aafc-4fbd388bbb1f",
      "detail": "Rotation off"
     }
    ],
@@ -581,7 +581,7 @@ window.SOC2KIT_SAMPLE = {
    "failed_resources": [
     {
      "region": "us-west-2",
-     "resource": "vpc-dd05bc29cc33c0616",
+     "resource": "vpc-f1b8fce8c8b7057a1",
      "detail": "No active flow log"
     }
    ],
@@ -644,7 +644,7 @@ window.SOC2KIT_SAMPLE = {
    "failed_resources": [
     {
      "region": "us-east-1",
-     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-LYNLUp",
+     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-tkjfqW",
      "detail": "Rotation off"
     }
    ],
@@ -779,8 +779,8 @@ window.SOC2KIT_SAMPLE = {
   },
   {
    "check_id": "DATA-02",
-   "title": "No S3 bucket allows public access",
-   "description": "Each bucket must be covered by Block Public Access (bucket or account level).",
+   "title": "Every S3 bucket is protected by Block Public Access",
+   "description": "Each bucket must be covered by all four Block Public Access settings (bucket or account level). A bucket without them is not necessarily public today, but nothing stops it becoming public.",
    "criteria": [
     "CC6.1",
     "C1.1"
@@ -1338,7 +1338,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set PubliclyAccessible to false and place the instance in private subnets.",
    "error": null,
    "evidence_file": "evidence/DATA-07__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -1367,7 +1367,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Sign in as root and enable a hardware or virtual MFA device under Security credentials.",
    "error": null,
    "evidence_file": "evidence/IAM-01.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:root",
@@ -1388,23 +1388,23 @@ window.SOC2KIT_SAMPLE = {
    "region": "us-east-1",
    "status": "FAIL",
    "summary": "1 of 3 failing",
-   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
+   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range. Groups not attached to anything can simply be deleted.",
    "error": null,
    "evidence_file": "evidence/NET-01__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "sg-3cf3cafef4bf302bd (default)",
+     "resource": "sg-2f336f6fa96ee9a46 (default)",
      "status": "PASS",
      "detail": "No open admin ports"
     },
     {
-     "resource": "sg-66222b5123eb54f73 (bastion)",
+     "resource": "sg-6849222529ab1c680 (bastion)",
      "status": "FAIL",
-     "detail": "Open to internet: SSH (22)"
+     "detail": "Open to internet: SSH (22) (not attached to anything, safe to delete)"
     },
     {
-     "resource": "sg-e07ea84d39363f8cf (web-alb)",
+     "resource": "sg-036c00c13f0386434 (web-alb)",
      "status": "PASS",
      "detail": "No open admin ports"
     }
@@ -1425,7 +1425,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set BackupRetentionPeriod to 7 or more.",
    "error": null,
    "evidence_file": "evidence/AVL-01__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:28Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -1455,7 +1455,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Encryption can't be turned on in place: snapshot, copy the snapshot with encryption, restore.",
    "error": null,
    "evidence_file": "evidence/DATA-06__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -1484,7 +1484,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable MFA for each listed user, or remove their console password and use IAM Identity Center.",
    "error": null,
    "evidence_file": "evidence/IAM-04.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/jane.ortiz",
@@ -1513,7 +1513,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Replace '*:*' with the specific actions and resources the principal needs.",
    "error": null,
    "evidence_file": "evidence/IAM-08.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:policy/ci-deploy",
@@ -1543,7 +1543,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable AWS Config in this region, recording all resource types.",
    "error": null,
    "evidence_file": "evidence/LOG-04__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -1568,7 +1568,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable GuardDuty in this region (ideally org-wide with a delegated admin).",
    "error": null,
    "evidence_file": "evidence/LOG-05__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -1592,7 +1592,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).",
    "error": null,
    "evidence_file": "evidence/AVL-02__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -1621,7 +1621,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an AWS Backup plan covering production resources in this region.",
    "error": null,
    "evidence_file": "evidence/AVL-03__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -1645,7 +1645,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Add a Deny statement for \"s3:*\" with Condition {\"Bool\": {\"aws:SecureTransport\": \"false\"}}.",
    "error": null,
    "evidence_file": "evidence/DATA-03.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::northwind-patient-exports",
@@ -1685,7 +1685,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable EBS encryption by default in this region.",
    "error": null,
    "evidence_file": "evidence/DATA-05__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -1709,15 +1709,15 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable automatic key rotation on the key.",
    "error": null,
    "evidence_file": "evidence/DATA-08__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "arn:aws:kms:us-east-1:123456789012:key/13380f3a-37f7-4f0e-a71d-b7a832e1a4b0",
+     "resource": "arn:aws:kms:us-east-1:123456789012:key/f947cfa6-77a1-44a5-8eb2-ed93fa2512cd",
      "status": "PASS",
      "detail": "Rotation on"
     },
     {
-     "resource": "arn:aws:kms:us-east-1:123456789012:key/796fe191-66ff-4c30-b1bc-7e6d8fc811b2",
+     "resource": "arn:aws:kms:us-east-1:123456789012:key/c14e29de-6356-4a5e-aafc-4fbd388bbb1f",
      "status": "FAIL",
      "detail": "Rotation off"
     }
@@ -1738,7 +1738,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set an account password policy: minimum length 14, require upper/lower/number/symbol, prevent reuse of 24.",
    "error": null,
    "evidence_file": "evidence/IAM-03.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:root",
@@ -1762,7 +1762,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable Security Hub with the AWS Foundational Security Best Practices standard.",
    "error": null,
    "evidence_file": "evidence/LOG-06__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:28Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -1786,10 +1786,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.",
    "error": null,
    "evidence_file": "evidence/LOG-07__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "vpc-dd05bc29cc33c0616",
+     "resource": "vpc-f1b8fce8c8b7057a1",
      "status": "FAIL",
      "detail": "No active flow log"
     }
@@ -1811,7 +1811,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable versioning (and a lifecycle rule to expire old versions to control cost).",
    "error": null,
    "evidence_file": "evidence/DATA-04.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::northwind-patient-exports",
@@ -1850,10 +1850,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Configure a rotation Lambda and schedule for the secret.",
    "error": null,
    "evidence_file": "evidence/DATA-09__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-LYNLUp",
+     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-tkjfqW",
      "status": "FAIL",
      "detail": "Rotation off"
     }
@@ -1874,7 +1874,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Move the user's policies onto a group or role and detach them from the user.",
    "error": null,
    "evidence_file": "evidence/IAM-07.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/jane.ortiz",
@@ -1909,7 +1909,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Configure SSE-KMS on the trail with a dedicated customer-managed key.",
    "error": null,
    "evidence_file": "evidence/LOG-03.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail",
@@ -1933,7 +1933,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set retention to 365+ days (or 'never expire') on each log group.",
    "error": null,
    "evidence_file": "evidence/LOG-08__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "/aws/lambda/report-export",
@@ -1963,7 +1963,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an account- or organization-level analyzer in this region.",
    "error": "The AWS simulator used for this sample does not support this API.",
    "evidence_file": "evidence/IAM-09__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
@@ -1982,13 +1982,13 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an account- or organization-level analyzer in this region.",
    "error": "The AWS simulator used for this sample does not support this API.",
    "evidence_file": "evidence/IAM-09__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
    "check_id": "DATA-02",
-   "title": "No S3 bucket allows public access",
-   "description": "Each bucket must be covered by Block Public Access (bucket or account level).",
+   "title": "Every S3 bucket is protected by Block Public Access",
+   "description": "Each bucket must be covered by all four Block Public Access settings (bucket or account level). A bucket without them is not necessarily public today, but nothing stops it becoming public.",
    "criteria": [
     "CC6.1",
     "C1.1"
@@ -2001,7 +2001,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable Block Public Access on the bucket; serve public content through CloudFront with OAC instead.",
    "error": null,
    "evidence_file": "evidence/DATA-02.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::northwind-patient-exports",
@@ -2040,7 +2040,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Delete any root access keys and use IAM roles for programmatic access.",
    "error": null,
    "evidence_file": "evidence/IAM-02.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:root",
@@ -2065,7 +2065,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create a multi-region trail (or an organization trail) delivering to a dedicated S3 bucket.",
    "error": null,
    "evidence_file": "evidence/LOG-01.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:cloudtrail:::123456789012",
@@ -2086,13 +2086,13 @@ window.SOC2KIT_SAMPLE = {
    "region": "us-west-2",
    "status": "PASS",
    "summary": "1 of 1 passing",
-   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
+   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range. Groups not attached to anything can simply be deleted.",
    "error": null,
    "evidence_file": "evidence/NET-01__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "sg-5e57fa49e5a51352c (default)",
+     "resource": "sg-ca8af1fcb5ec18415 (default)",
      "status": "PASS",
      "detail": "No open admin ports"
     }
@@ -2114,7 +2114,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Turn on all four Block Public Access settings for the account.",
    "error": null,
    "evidence_file": "evidence/DATA-01.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:26Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::account/123456789012",
@@ -2139,7 +2139,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable AWS Config in this region, recording all resource types.",
    "error": null,
    "evidence_file": "evidence/LOG-04__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -2164,7 +2164,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable GuardDuty in this region (ideally org-wide with a delegated admin).",
    "error": null,
    "evidence_file": "evidence/LOG-05__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -2188,7 +2188,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an AWS Backup plan covering production resources in this region.",
    "error": null,
    "evidence_file": "evidence/AVL-03__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:26Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -2213,7 +2213,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable EBS encryption by default in this region.",
    "error": null,
    "evidence_file": "evidence/DATA-05__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:10Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -2238,7 +2238,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Rotate old keys, or better, replace long-lived keys with IAM roles / IAM Identity Center.",
    "error": null,
    "evidence_file": "evidence/IAM-05.json",
-   "evaluated_at": "2026-10-26T15:22:13Z",
+   "evaluated_at": "2026-10-26T15:36:29Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/ci-deploy-bot (key 1)",
@@ -2263,7 +2263,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Disable or delete the stale password / access key; review whether the user still needs access.",
    "error": null,
    "evidence_file": "evidence/IAM-06.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/jane.ortiz",
@@ -2297,7 +2297,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable log file validation on the trail.",
    "error": null,
    "evidence_file": "evidence/LOG-02.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail",
@@ -2321,7 +2321,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable Security Hub with the AWS Foundational Security Best Practices standard.",
    "error": null,
    "evidence_file": "evidence/LOG-06__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
      "resource": "arn:aws:securityhub:us-east-1:123456789012:hub/default",
@@ -2345,10 +2345,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.",
    "error": null,
    "evidence_file": "evidence/LOG-07__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "vpc-ce4064a3dd782645b",
+     "resource": "vpc-46309dc4fb705a6d2",
      "status": "PASS",
      "detail": "Flow logs active"
     }
@@ -2369,10 +2369,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Remove all inbound and outbound rules from each VPC's default security group.",
    "error": null,
    "evidence_file": "evidence/NET-02__us-east-1.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "sg-3cf3cafef4bf302bd (vpc-ce4064a3dd782645b)",
+     "resource": "sg-2f336f6fa96ee9a46 (vpc-46309dc4fb705a6d2)",
      "status": "PASS",
      "detail": "No rules"
     }
@@ -2393,10 +2393,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Remove all inbound and outbound rules from each VPC's default security group.",
    "error": null,
    "evidence_file": "evidence/NET-02__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": [
     {
-     "resource": "sg-5e57fa49e5a51352c (vpc-dd05bc29cc33c0616)",
+     "resource": "sg-ca8af1fcb5ec18415 (vpc-f1b8fce8c8b7057a1)",
      "status": "PASS",
      "detail": "No rules"
     }
@@ -2417,7 +2417,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set PubliclyAccessible to false and place the instance in private subnets.",
    "error": null,
    "evidence_file": "evidence/DATA-07__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
@@ -2435,7 +2435,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set BackupRetentionPeriod to 7 or more.",
    "error": null,
    "evidence_file": "evidence/AVL-01__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
@@ -2454,7 +2454,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Encryption can't be turned on in place: snapshot, copy the snapshot with encryption, restore.",
    "error": null,
    "evidence_file": "evidence/DATA-06__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
@@ -2472,7 +2472,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).",
    "error": null,
    "evidence_file": "evidence/AVL-02__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:28Z",
    "findings": []
   },
   {
@@ -2490,7 +2490,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable automatic key rotation on the key.",
    "error": null,
    "evidence_file": "evidence/DATA-08__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
@@ -2508,7 +2508,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Configure a rotation Lambda and schedule for the secret.",
    "error": null,
    "evidence_file": "evidence/DATA-09__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   },
   {
@@ -2526,7 +2526,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set retention to 365+ days (or 'never expire') on each log group.",
    "error": null,
    "evidence_file": "evidence/LOG-08__us-west-2.json",
-   "evaluated_at": "2026-10-26T15:22:11Z",
+   "evaluated_at": "2026-10-26T15:36:27Z",
    "findings": []
   }
  ],

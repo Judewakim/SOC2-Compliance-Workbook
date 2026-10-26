@@ -29,7 +29,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 </head>
 <body><main>
 <h1>SOC 2 Evidence Report</h1>
-<div class="muted">AWS account 123456789012 &middot; scanned 2026-10-26T15:22:13Z &middot; 2 region(s)</div>
+<div class="muted">AWS account 123456789012 &middot; scanned 2026-10-26T15:36:29Z &middot; 2 region(s)</div>
 
 <div class="grid">
   <div class="card stat"><span class="muted">Automated score</span><b>27%</b></div>
@@ -83,9 +83,9 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>sg-66222b5123eb54f73 (bastion)</code> (us-east-1) - Open to internet: SSH (22)</li>
+<ul><li><code>sg-6849222529ab1c680 (bastion)</code> (us-east-1) - Open to internet: SSH (22) (not attached to anything, safe to delete)</li>
 </ul>
-<div><b>Fix:</b> Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.</div>
+<div><b>Fix:</b> Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range. Groups not attached to anything can simply be deleted.</div>
 <div class="muted">Evidence: <code>evidence/NET-01__us-east-1.json</code> <code>evidence/NET-01__us-west-2.json</code> </div>
 </details>
 
@@ -259,7 +259,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:kms:us-east-1:123456789012:key/796fe191-66ff-4c30-b1bc-7e6d8fc811b2</code> (us-east-1) - Rotation off</li>
+<ul><li><code>arn:aws:kms:us-east-1:123456789012:key/c14e29de-6356-4a5e-aafc-4fbd388bbb1f</code> (us-east-1) - Rotation off</li>
 </ul>
 <div><b>Fix:</b> Enable automatic key rotation on the key.</div>
 <div class="muted">Evidence: <code>evidence/DATA-08__us-east-1.json</code> <code>evidence/DATA-08__us-west-2.json</code> </div>
@@ -307,7 +307,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>vpc-dd05bc29cc33c0616</code> (us-west-2) - No active flow log</li>
+<ul><li><code>vpc-f1b8fce8c8b7057a1</code> (us-west-2) - No active flow log</li>
 </ul>
 <div><b>Fix:</b> Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.</div>
 <div class="muted">Evidence: <code>evidence/LOG-07__us-east-1.json</code> <code>evidence/LOG-07__us-west-2.json</code> </div>
@@ -339,7 +339,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-LYNLUp</code> (us-east-1) - Rotation off</li>
+<ul><li><code>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-tkjfqW</code> (us-east-1) - Rotation off</li>
 </ul>
 <div><b>Fix:</b> Configure a rotation Lambda and schedule for the secret.</div>
 <div class="muted">Evidence: <code>evidence/DATA-09__us-east-1.json</code> <code>evidence/DATA-09__us-west-2.json</code> </div>
@@ -415,7 +415,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <tr>
 <td><span class="pill PASS">PASS</span></td>
-<td><b>DATA-02</b> No S3 bucket allows public access
+<td><b>DATA-02</b> Every S3 bucket is protected by Block Public Access
 
 </td>
 <td>CC6.1, C1.1</td><td>CRITICAL</td><td>4 of 4 passing</td>
