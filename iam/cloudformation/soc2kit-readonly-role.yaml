@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  soc2kit read-only scan role. Grants only the 35 read actions soc2kit needs (no data reads, no writes).
+  The trusted principal must present the External ID to assume it. Delete the stack to revoke access.
+
+Parameters:
+  TrustedPrincipalArn:
+    Type: String
+    Description: ARN of the principal (account root, role or user) allowed to assume this role and run the scan.
+    AllowedPattern: "^arn:aws:iam::\\d{12}:(root|role/.+|user/.+)$"
+  ExternalId:
+    Type: String
+    Description: Shared secret the scanner must present when assuming the role (16-128 chars).
+    MinLength: 16
+    MaxLength: 128
+    AllowedPattern: "^[A-Za-z0-9+=,.@:/-]+$"
+    NoEcho: true
+  RoleName:
+    Type: String
+    Default: soc2kit-readonly
+    Description: Name of the IAM role to create.
+
+Resources:
+  ScanRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: Read-only role for soc2kit SOC 2 evidence collection
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Ref TrustedPrincipalArn
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                sts:ExternalId: !Ref ExternalId
+      Policies:
+        - PolicyName: soc2kit-readonly
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: Soc2KitReadOnly
+                Effect: Allow
+                Resource: "*"
+                Action:
+                  - access-analyzer:ListAnalyzers
+                  - backup:ListBackupPlans
+                  - cloudtrail:DescribeTrails
+                  - cloudtrail:GetTrailStatus
+                  - config:DescribeConfigurationRecorderStatus
+                  - config:DescribeConfigurationRecorders
+                  - ec2:DescribeFlowLogs
+                  - ec2:DescribeRegions
+                  - ec2:DescribeSecurityGroups
+                  - ec2:DescribeVpcs
+                  - ec2:GetEbsEncryptionByDefault
+                  - guardduty:GetDetector
+                  - guardduty:ListDetectors
+                  - iam:GenerateCredentialReport
+                  - iam:GetAccountPasswordPolicy
+                  - iam:GetAccountSummary
+                  - iam:GetCredentialReport
+                  - iam:GetPolicyVersion
+                  - iam:ListAttachedUserPolicies
+                  - iam:ListPolicies
+                  - iam:ListUserPolicies
+                  - iam:ListUsers
+                  - kms:DescribeKey
+                  - kms:GetKeyRotationStatus
+                  - kms:ListKeys
+                  - logs:DescribeLogGroups
+                  - rds:DescribeDBInstances
+                  - s3:GetAccountPublicAccessBlock
+                  - s3:GetBucketPolicy
+                  - s3:GetBucketPublicAccessBlock
+                  - s3:GetBucketVersioning
+                  - s3:ListAllMyBuckets
+                  - secretsmanager:ListSecrets
+                  - securityhub:DescribeHub
+                  - sts:GetCallerIdentity
+
+Outputs:
+  RoleArn:
+    Description: Pass this to soc2kit --role-arn
+    Value: !GetAtt ScanRole.Arn

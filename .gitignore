@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# soc2kit output (contains account data - never commit)
+soc2-evidence/
+*.zip
+credentials.json
+.terraform/
+*.tfstate*

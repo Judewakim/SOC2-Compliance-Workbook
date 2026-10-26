@@ -1,1 +1,0 @@
-# Writes results to Google Sheets

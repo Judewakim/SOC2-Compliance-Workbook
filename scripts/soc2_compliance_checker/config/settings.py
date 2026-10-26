@@ -1,1 +1,0 @@
-# Global config, sheet names, AWS settings, etc.
