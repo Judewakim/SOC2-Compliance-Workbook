@@ -33,30 +33,32 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <div class="grid">
   <div class="card stat"><span class="muted">Automated score</span><b>{{ s.score }}%</b></div>
-  <div class="card stat"><span class="muted">Passing</span><b>{{ s.counts.PASS }}</b></div>
-  <div class="card stat"><span class="muted">Failing</span><b>{{ s.counts.FAIL }}</b></div>
+  <div class="card stat"><span class="muted">Controls passing</span><b>{{ s.counts.PASS }}</b></div>
+  <div class="card stat"><span class="muted">Controls failing</span><b>{{ s.counts.FAIL }}</b></div>
   <div class="card stat"><span class="muted">Could not evaluate</span><b>{{ s.counts.ERROR }}</b></div>
   <div class="card stat"><span class="muted">Not applicable</span><b>{{ s.counts['N/A'] }}</b></div>
 </div>
 
 <h2>Automated checks</h2>
+<p class="muted">One verdict per control: a control fails if it fails in any region. {{ s.result_counts.values()|sum }} region-level results are in <code>evidence/</code>.</p>
 <div class="scroll"><table>
-<thead><tr><th>Status</th><th>Check</th><th>Criteria</th><th>Severity</th><th>Region</th><th>Result</th></tr></thead>
+<thead><tr><th>Status</th><th>Check</th><th>Criteria</th><th>Severity</th><th>Result</th></tr></thead>
 <tbody>
-{% for r in s.results %}
+{% for c in s.checks %}
 <tr>
-<td><span class="pill {{ 'NA' if r.status == 'N/A' else r.status }}">{{ r.status }}</span></td>
-<td><b>{{ r.check_id }}</b> {{ r.title }}
-{% if r.status in ('FAIL','ERROR') %}
+<td><span class="pill {{ 'NA' if c.status == 'N/A' else c.status }}">{{ c.status }}</span></td>
+<td><b>{{ c.check_id }}</b> {{ c.title }}
+{% if c.status in ('FAIL','ERROR') %}
 <details><summary>Details &amp; fix</summary>
-{% if r.error %}<div><code>{{ r.error }}</code></div>{% endif %}
-<ul>{% for f in r.findings if f.status == 'FAIL' %}<li><code>{{ f.resource }}</code> - {{ f.detail }}</li>{% endfor %}</ul>
-<div><b>Fix:</b> {{ r.remediation }}</div>
-<div class="muted">Evidence: <code>{{ r.evidence_file }}</code></div>
+{% for e in c.errors %}<div><code>{{ e }}</code></div>{% endfor %}
+<ul>{% for f in c.failed_resources[:100] %}<li><code>{{ f.resource }}</code> ({{ f.region }}) - {{ f.detail }}</li>{% endfor %}
+{% if c.failed_resources|length > 100 %}<li>{{ c.failed_resources|length - 100 }} more in workbook.xlsx</li>{% endif %}</ul>
+<div><b>Fix:</b> {{ c.remediation }}</div>
+<div class="muted">Evidence: {% for e in c.evidence_files %}<code>{{ e }}</code> {% endfor %}</div>
 </details>
 {% endif %}
 </td>
-<td>{{ r.criteria|join(', ') }}</td><td>{{ r.severity }}</td><td>{{ r.region }}</td><td>{{ r.summary }}</td>
+<td>{{ c.criteria|join(', ') }}</td><td>{{ c.severity }}</td><td>{{ c.summary }}</td>
 </tr>
 {% endfor %}
 </tbody></table></div>

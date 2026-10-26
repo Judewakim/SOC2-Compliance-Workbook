@@ -77,8 +77,61 @@
       };
     });
 
+    // One verdict per control: fails if it fails in any region; passes only if nothing failed or went untested.
+    var groups = {};
+    var orderIds = [];
+    results.forEach(function (r) {
+      if (!groups[r.check_id]) { groups[r.check_id] = []; orderIds.push(r.check_id); }
+      groups[r.check_id].push(r);
+    });
+    var checks = orderIds.map(function (id) {
+      var rows = groups[id];
+      var first = rows[0];
+      var status = ["FAIL", "ERROR", "PASS"].filter(function (s) {
+        return rows.some(function (r) { return r.status === s; });
+      })[0] || "N/A";
+      var by = { PASS: [], FAIL: [], ERROR: [], "N/A": [] };
+      rows.forEach(function (r) { by[r.status].push(r.region); });
+      var regional = rows.length > 1 || (first.region && first.region !== "global");
+      var applicable = rows.length - by["N/A"].length;
+      var summary = first.summary;
+      var resourceLevel = rows.some(function (r) { return r.findings.some(function (f) { return f.resource !== r.region; }); });
+      var totalRes = 0, badRes = 0;
+      rows.forEach(function (r) { r.findings.forEach(function (f) { totalRes += 1; if (f.status === "FAIL") badRes += 1; }); });
+      if (regional && rows.length > 1) {
+        if (status === "FAIL" && resourceLevel) {
+          summary = badRes + " of " + totalRes + " resources fail (" + by.FAIL.slice(0, 4).join(", ") + (by.FAIL.length > 4 ? " and more" : "") + ")";
+        } else if (status === "PASS" && resourceLevel) {
+          summary = "All " + totalRes + " resources pass";
+        } else if (status === "FAIL") {
+          summary = "Fails in " + by.FAIL.length + " of " + applicable + " regions: " + by.FAIL.slice(0, 4).join(", ") +
+            (by.FAIL.length > 4 ? " and " + (by.FAIL.length - 4) + " more" : "");
+        } else if (status === "ERROR") {
+          summary = "Couldn't be tested in " + plural(by.ERROR.length, "region");
+        } else if (status === "PASS") {
+          summary = "Passes in all " + plural(applicable, "region") + " where it applies";
+        } else {
+          summary = "Nothing to test in any region";
+        }
+      }
+      var findings = [];
+      rows.forEach(function (r) {
+        r.findings.forEach(function (f) {
+          if (f.status === "FAIL") findings.push({ resource: f.resource, detail: f.detail, region: r.region });
+        });
+      });
+      return {
+        check_id: first.check_id, title: first.title, criteria: first.criteria, severity: first.severity,
+        status: status, summary: summary, remediation: first.remediation,
+        region_label: regional && rows.length > 1 ? plural(rows.length, "region") : (first.region || "global"),
+        errors: rows.filter(function (r) { return r.error; }).map(function (r) { return r.region + ": " + r.error; }),
+        findings: findings,
+        evidence_files: rows.filter(function (r) { return r.evidence_file && r.status !== "N/A"; }).map(function (r) { return r.evidence_file; })
+      };
+    });
+
     var counts = { PASS: 0, FAIL: 0, ERROR: 0, "N/A": 0 };
-    results.forEach(function (r) { counts[r.status] += 1; });
+    checks.forEach(function (c) { counts[c.status] += 1; });
     var evaluated = counts.PASS + counts.FAIL;
 
     var criteria = list(raw.criteria, 200).map(function (c) {
@@ -99,6 +152,7 @@
       counts: counts,
       score: evaluated ? Math.round((100 * counts.PASS) / evaluated) : 0,
       results: results,
+      checks: checks,
       criteria: criteria,
       manual_count: list(raw.manual_controls, 500).length,
       sample: raw.sample ? { company: str(raw.sample.company, 80) } : null
@@ -107,9 +161,9 @@
 
   // -------------------------------------------------------------- sheet
   function resultsFor(report, criterion) {
-    return report.results
-      .filter(function (r) { return r.criteria.indexOf(criterion) >= 0; })
-      .sort(function (a, b) { return (a.check_id + a.region).localeCompare(b.check_id + b.region); });
+    return report.checks
+      .filter(function (c) { return c.criteria.indexOf(criterion) >= 0; })
+      .sort(function (a, b) { return a.check_id.localeCompare(b.check_id); });
   }
 
   function markClass(status) { return "m-" + (status === "N/A" ? "NA" : status); }
@@ -180,7 +234,7 @@
     var v = $("verdict");
     v.textContent = "";
     function n(k, text) { v.appendChild(el("span", { className: "n-" + k, text: text })); }
-    n("FAIL", plural(report.counts.FAIL, "check") + " failed");
+    n("FAIL", plural(report.counts.FAIL, "control") + " failed");
     v.appendChild(document.createTextNode(", "));
     n("PASS", report.counts.PASS + " passed");
     if (report.counts.ERROR) {
@@ -194,14 +248,14 @@
     var order = { FAIL: 0, ERROR: 1, PASS: 2, "N/A": 3 };
     return (order[a.status] - order[b.status]) ||
       (SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity]) ||
-      a.check_id.localeCompare(b.check_id) || a.region.localeCompare(b.region);
+      a.check_id.localeCompare(b.check_id);
   }
 
   function resultItem(r) {
     var sev = r.severity.charAt(0) + r.severity.slice(1).toLowerCase();
     var ref = el("p", { className: "result-ref" }, [
       el("b", { text: r.check_id }),
-      document.createTextNode("  " + sev + " severity, " + r.criteria.join(" and ") + ", " + r.region)
+      document.createTextNode("  " + sev + " severity, " + r.criteria.join(" and ") + ", " + r.region_label)
     ]);
     var body = el("div", { className: "result-body" }, [
       el("h3", { text: r.title }), ref, el("p", { className: "result-summary", text: r.summary })
@@ -209,18 +263,24 @@
 
     if (r.status === "FAIL" || r.status === "ERROR") {
       var inner = el("div", { className: "more-body" });
-      var failing = r.findings.filter(function (f) { return f.status === "FAIL"; });
+      var failing = r.findings;
       if (failing.length) {
         var ul = el("ul", { className: "res-list" });
         failing.slice(0, 50).forEach(function (f) {
-          ul.appendChild(el("li", null, [el("code", { text: f.resource }), document.createTextNode(": " + f.detail)]));
+          var where = f.region && f.region !== "global" ? " (" + f.region + ")" : "";
+          ul.appendChild(el("li", null, [el("code", { text: f.resource }), document.createTextNode(where + ": " + f.detail)]));
         });
         if (failing.length > 50) ul.appendChild(el("li", { text: (failing.length - 50) + " more are listed in the workbook." }));
         inner.appendChild(el("div", null, [el("h4", { text: "Affected resources" }), ul]));
       }
-      if (r.error) inner.appendChild(el("div", null, [el("h4", { text: "Why it wasn't tested" }), el("p", { text: r.error })]));
+      if (r.errors.length) inner.appendChild(el("div", null, [el("h4", { text: "Why it wasn't tested" }), el("p", { text: r.errors.slice(0, 5).join(" ") })]));
       inner.appendChild(el("div", null, [el("h4", { text: "How to fix it" }), el("p", { text: r.remediation })]));
-      if (r.evidence_file) inner.appendChild(el("div", null, [el("h4", { text: "Evidence file" }), el("p", null, [el("code", { text: r.evidence_file })])]));
+      if (r.evidence_files.length) {
+        var ev = el("p");
+        r.evidence_files.slice(0, 6).forEach(function (f, i) { if (i) ev.appendChild(document.createTextNode(" ")); ev.appendChild(el("code", { text: f })); });
+        if (r.evidence_files.length > 6) ev.appendChild(document.createTextNode(" and " + (r.evidence_files.length - 6) + " more"));
+        inner.appendChild(el("div", null, [el("h4", { text: r.evidence_files.length > 1 ? "Evidence files" : "Evidence file" }), ev]));
+      }
       body.appendChild(el("details", { className: "more" }, [el("summary", { text: r.status === "FAIL" ? "Show resources and fix" : "Show details" }), inner]));
     }
 
@@ -233,7 +293,7 @@
   function renderResults() {
     var ul = $("results");
     ul.textContent = "";
-    var shown = current.results.filter(function (r) { return filter === "ALL" || r.status === filter; }).sort(sortResults);
+    var shown = current.checks.filter(function (r) { return filter === "ALL" || r.status === filter; }).sort(sortResults);
     if (!shown.length) { ul.appendChild(el("li", { className: "empty", text: "No results in this tab." })); return; }
     shown.forEach(function (r) { ul.appendChild(resultItem(r)); });
   }
@@ -243,7 +303,7 @@
     document.querySelectorAll(".tab").forEach(function (tab) {
       var k = tab.getAttribute("data-filter");
       tab.textContent = TAB_LABEL[k];
-      tab.appendChild(el("span", { className: "n", text: String(k === "ALL" ? current.results.length : current.counts[k]) }));
+      tab.appendChild(el("span", { className: "n", text: String(k === "ALL" ? current.checks.length : current.counts[k]) }));
       tab.setAttribute("aria-pressed", String(k === filter));
     });
   }
@@ -272,7 +332,7 @@
     $("report-source").textContent = sourceLabel;
     renderVerdict(report);
     $("report-meta").textContent = "AWS account " + report.account_id + ", scanned " + formatDate(report.finished_at) +
-      " across " + plural(report.regions.length, "region") + " (" + report.regions.join(", ") + ").";
+      " across " + plural(report.regions.length, "region") + " (" + plural(report.results.length, "region-level result") + ").";
     $("downloads").hidden = !report.sample;
     $("report-note").textContent = "The scanner covers the technical part of SOC 2. " +
       (report.manual_count ? "The workbook lists " + report.manual_count + " procedural controls that still need evidence. " : "") +

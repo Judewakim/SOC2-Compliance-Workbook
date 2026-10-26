@@ -2,7 +2,7 @@
 window.SOC2KIT_SAMPLE = {
  "tool": {
   "name": "soc2kit",
-  "version": "2.0.0"
+  "version": "2.1.0"
  },
  "account_id": "123456789012",
  "principal_arn": "arn:aws:iam::123456789012:role/soc2kit-readonly (simulated)",
@@ -10,15 +10,948 @@ window.SOC2KIT_SAMPLE = {
   "us-east-1",
   "us-west-2"
  ],
- "started_at": "2026-10-26T14:42:50Z",
- "finished_at": "2026-10-26T14:42:53Z",
- "score": 42,
+ "started_at": "2026-10-26T15:22:10Z",
+ "finished_at": "2026-10-26T15:22:13Z",
+ "score": 27,
  "counts": {
+  "PASS": 8,
+  "FAIL": 22,
+  "ERROR": 1,
+  "N/A": 0
+ },
+ "result_counts": {
   "PASS": 16,
   "FAIL": 22,
   "ERROR": 2,
   "N/A": 7
  },
+ "checks": [
+  {
+   "check_id": "DATA-07",
+   "title": "RDS databases are not publicly accessible",
+   "description": "Databases should only be reachable from inside the VPC.",
+   "criteria": [
+    "CC6.6"
+   ],
+   "severity": "CRITICAL",
+   "service": "rds",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "arn:aws:rds:us-east-1:123456789012:db:reporting-replica",
+     "detail": "Publicly accessible"
+    }
+   ],
+   "errors": [],
+   "remediation": "Set PubliclyAccessible to false and place the instance in private subnets.",
+   "evidence_files": [
+    "evidence/DATA-07__us-east-1.json",
+    "evidence/DATA-07__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "IAM-01",
+   "title": "Root account has MFA enabled",
+   "description": "The root user can do anything in the account. It must be protected by MFA.",
+   "criteria": [
+    "CC6.1"
+   ],
+   "severity": "CRITICAL",
+   "service": "iam",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 1 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:iam::123456789012:root",
+     "detail": "Root MFA is not enabled"
+    }
+   ],
+   "errors": [],
+   "remediation": "Sign in as root and enable a hardware or virtual MFA device under Security credentials.",
+   "evidence_files": [
+    "evidence/IAM-01.json"
+   ]
+  },
+  {
+   "check_id": "NET-01",
+   "title": "No security group exposes SSH or RDP to the internet",
+   "description": "Admin ports open to 0.0.0.0/0 or ::/0 are a top initial-access vector.",
+   "criteria": [
+    "CC6.6"
+   ],
+   "severity": "CRITICAL",
+   "service": "ec2",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 4 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [
+     "us-west-2"
+    ],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "sg-66222b5123eb54f73 (bastion)",
+     "detail": "Open to internet: SSH (22)"
+    }
+   ],
+   "errors": [],
+   "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
+   "evidence_files": [
+    "evidence/NET-01__us-east-1.json",
+    "evidence/NET-01__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "AVL-01",
+   "title": "RDS automated backups are kept at least 7 days",
+   "description": "Automated backups enable point-in-time recovery.",
+   "criteria": [
+    "A1.2"
+   ],
+   "severity": "HIGH",
+   "service": "rds",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "arn:aws:rds:us-east-1:123456789012:db:reporting-replica",
+     "detail": "1 day retention"
+    }
+   ],
+   "errors": [],
+   "remediation": "Set BackupRetentionPeriod to 7 or more.",
+   "evidence_files": [
+    "evidence/AVL-01__us-east-1.json",
+    "evidence/AVL-01__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "DATA-06",
+   "title": "RDS databases are encrypted at rest",
+   "description": "Database storage, backups and snapshots must be encrypted.",
+   "criteria": [
+    "CC6.1",
+    "C1.1"
+   ],
+   "severity": "HIGH",
+   "service": "rds",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "arn:aws:rds:us-east-1:123456789012:db:reporting-replica",
+     "detail": "Not encrypted"
+    }
+   ],
+   "errors": [],
+   "remediation": "Encryption can't be turned on in place: snapshot, copy the snapshot with encryption, restore.",
+   "evidence_files": [
+    "evidence/DATA-06__us-east-1.json",
+    "evidence/DATA-06__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "IAM-04",
+   "title": "Every console user has MFA",
+   "description": "Any IAM user with a console password must have MFA enabled.",
+   "criteria": [
+    "CC6.1"
+   ],
+   "severity": "HIGH",
+   "service": "iam",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 2 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:iam::123456789012:user/mark.chen",
+     "detail": "Console password without MFA"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable MFA for each listed user, or remove their console password and use IAM Identity Center.",
+   "evidence_files": [
+    "evidence/IAM-04.json"
+   ]
+  },
+  {
+   "check_id": "IAM-08",
+   "title": "No customer-managed policy grants full admin (*:*)",
+   "description": "Custom policies allowing Action '*' on Resource '*' bypass least privilege.",
+   "criteria": [
+    "CC6.3"
+   ],
+   "severity": "HIGH",
+   "service": "iam",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 2 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:iam::123456789012:policy/legacy-admin",
+     "detail": "Allows *:*"
+    }
+   ],
+   "errors": [],
+   "remediation": "Replace '*:*' with the specific actions and resources the principal needs.",
+   "evidence_files": [
+    "evidence/IAM-08.json"
+   ]
+  },
+  {
+   "check_id": "LOG-04",
+   "title": "AWS Config is recording",
+   "description": "Config records resource configuration history, which is your change-management evidence.",
+   "criteria": [
+    "CC7.1",
+    "CC8.1"
+   ],
+   "severity": "HIGH",
+   "service": "config",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "Fails in 1 of 2 regions (us-west-2)",
+   "regions": {
+    "PASS": [
+     "us-east-1"
+    ],
+    "FAIL": [
+     "us-west-2"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-west-2",
+     "resource": "us-west-2",
+     "detail": "No recorder"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable AWS Config in this region, recording all resource types.",
+   "evidence_files": [
+    "evidence/LOG-04__us-east-1.json",
+    "evidence/LOG-04__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "LOG-05",
+   "title": "GuardDuty is enabled",
+   "description": "GuardDuty provides continuous threat detection over CloudTrail, VPC and DNS logs.",
+   "criteria": [
+    "CC6.8",
+    "CC7.2"
+   ],
+   "severity": "HIGH",
+   "service": "guardduty",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "Fails in 1 of 2 regions (us-west-2)",
+   "regions": {
+    "PASS": [
+     "us-east-1"
+    ],
+    "FAIL": [
+     "us-west-2"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-west-2",
+     "resource": "us-west-2",
+     "detail": "No enabled detector"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable GuardDuty in this region (ideally org-wide with a delegated admin).",
+   "evidence_files": [
+    "evidence/LOG-05__us-east-1.json",
+    "evidence/LOG-05__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "AVL-02",
+   "title": "RDS databases are Multi-AZ",
+   "description": "Multi-AZ keeps a standby in another availability zone for automatic failover.",
+   "criteria": [
+    "A1.2"
+   ],
+   "severity": "MEDIUM",
+   "service": "rds",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "arn:aws:rds:us-east-1:123456789012:db:reporting-replica",
+     "detail": "Single-AZ"
+    }
+   ],
+   "errors": [],
+   "remediation": "Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).",
+   "evidence_files": [
+    "evidence/AVL-02__us-east-1.json",
+    "evidence/AVL-02__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "AVL-03",
+   "title": "An AWS Backup plan exists",
+   "description": "A backup plan gives centrally managed, scheduled backups with retention rules.",
+   "criteria": [
+    "A1.2"
+   ],
+   "severity": "MEDIUM",
+   "service": "backup",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "Fails in 1 of 2 regions (us-west-2)",
+   "regions": {
+    "PASS": [
+     "us-east-1"
+    ],
+    "FAIL": [
+     "us-west-2"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-west-2",
+     "resource": "us-west-2",
+     "detail": "No backup plans"
+    }
+   ],
+   "errors": [],
+   "remediation": "Create an AWS Backup plan covering production resources in this region.",
+   "evidence_files": [
+    "evidence/AVL-03__us-east-1.json",
+    "evidence/AVL-03__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "DATA-03",
+   "title": "S3 buckets reject non-TLS requests",
+   "description": "A bucket policy must deny requests where aws:SecureTransport is false.",
+   "criteria": [
+    "CC6.7"
+   ],
+   "severity": "MEDIUM",
+   "service": "s3",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 4 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:s3:::northwind-app-logs",
+     "detail": "No SecureTransport deny"
+    }
+   ],
+   "errors": [],
+   "remediation": "Add a Deny statement for \"s3:*\" with Condition {\"Bool\": {\"aws:SecureTransport\": \"false\"}}.",
+   "evidence_files": [
+    "evidence/DATA-03.json"
+   ]
+  },
+  {
+   "check_id": "DATA-05",
+   "title": "EBS encryption by default is on",
+   "description": "Ensures every new EBS volume and snapshot is encrypted at rest.",
+   "criteria": [
+    "CC6.1",
+    "C1.1"
+   ],
+   "severity": "MEDIUM",
+   "service": "ec2",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "Fails in 1 of 2 regions (us-west-2)",
+   "regions": {
+    "PASS": [
+     "us-east-1"
+    ],
+    "FAIL": [
+     "us-west-2"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-west-2",
+     "resource": "us-west-2",
+     "detail": "Off"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable EBS encryption by default in this region.",
+   "evidence_files": [
+    "evidence/DATA-05__us-east-1.json",
+    "evidence/DATA-05__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "DATA-08",
+   "title": "Customer-managed KMS keys rotate automatically",
+   "description": "Symmetric customer-managed keys should have automatic rotation enabled.",
+   "criteria": [
+    "CC6.1"
+   ],
+   "severity": "MEDIUM",
+   "service": "kms",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "arn:aws:kms:us-east-1:123456789012:key/796fe191-66ff-4c30-b1bc-7e6d8fc811b2",
+     "detail": "Rotation off"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable automatic key rotation on the key.",
+   "evidence_files": [
+    "evidence/DATA-08__us-east-1.json",
+    "evidence/DATA-08__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "IAM-03",
+   "title": "Password policy meets minimum strength",
+   "description": "Requires length >= 14, all character classes, and reuse prevention of >= 24 passwords.",
+   "criteria": [
+    "CC6.1"
+   ],
+   "severity": "MEDIUM",
+   "service": "iam",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 1 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:iam::123456789012:root",
+     "detail": "minimum length 8 < 14; RequireSymbols is off; reuse prevention 0 < 24"
+    }
+   ],
+   "errors": [],
+   "remediation": "Set an account password policy: minimum length 14, require upper/lower/number/symbol, prevent reuse of 24.",
+   "evidence_files": [
+    "evidence/IAM-03.json"
+   ]
+  },
+  {
+   "check_id": "LOG-06",
+   "title": "Security Hub is enabled",
+   "description": "Security Hub aggregates findings and runs continuous best-practice checks.",
+   "criteria": [
+    "CC7.1"
+   ],
+   "severity": "MEDIUM",
+   "service": "securityhub",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-west-2)",
+   "regions": {
+    "PASS": [
+     "us-east-1"
+    ],
+    "FAIL": [
+     "us-west-2"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-west-2",
+     "resource": "us-west-2",
+     "detail": "Not enabled"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable Security Hub with the AWS Foundational Security Best Practices standard.",
+   "evidence_files": [
+    "evidence/LOG-06__us-east-1.json",
+    "evidence/LOG-06__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "LOG-07",
+   "title": "Every VPC has flow logs",
+   "description": "Flow logs record network traffic metadata needed to investigate incidents.",
+   "criteria": [
+    "CC7.2"
+   ],
+   "severity": "MEDIUM",
+   "service": "ec2",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-west-2)",
+   "regions": {
+    "PASS": [
+     "us-east-1"
+    ],
+    "FAIL": [
+     "us-west-2"
+    ],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [
+    {
+     "region": "us-west-2",
+     "resource": "vpc-dd05bc29cc33c0616",
+     "detail": "No active flow log"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.",
+   "evidence_files": [
+    "evidence/LOG-07__us-east-1.json",
+    "evidence/LOG-07__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "DATA-04",
+   "title": "S3 buckets have versioning enabled",
+   "description": "Versioning lets you recover objects that were overwritten or deleted.",
+   "criteria": [
+    "A1.2",
+    "C1.1"
+   ],
+   "severity": "LOW",
+   "service": "s3",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 4 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:s3:::northwind-web-assets",
+     "detail": "Versioning Disabled"
+    }
+   ],
+   "errors": [],
+   "remediation": "Enable versioning (and a lifecycle rule to expire old versions to control cost).",
+   "evidence_files": [
+    "evidence/DATA-04.json"
+   ]
+  },
+  {
+   "check_id": "DATA-09",
+   "title": "Secrets Manager secrets rotate automatically",
+   "description": "Secrets should have a rotation schedule so leaked values expire.",
+   "criteria": [
+    "CC6.1"
+   ],
+   "severity": "LOW",
+   "service": "secretsmanager",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 1 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-LYNLUp",
+     "detail": "Rotation off"
+    }
+   ],
+   "errors": [],
+   "remediation": "Configure a rotation Lambda and schedule for the secret.",
+   "evidence_files": [
+    "evidence/DATA-09__us-east-1.json",
+    "evidence/DATA-09__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "IAM-07",
+   "title": "IAM users get permissions through groups or roles only",
+   "description": "Policies attached directly to users are hard to review and drift over time.",
+   "criteria": [
+    "CC6.3"
+   ],
+   "severity": "LOW",
+   "service": "iam",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 3 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:iam::123456789012:user/ci-deploy-bot",
+     "detail": "1 policies attached directly"
+    }
+   ],
+   "errors": [],
+   "remediation": "Move the user's policies onto a group or role and detach them from the user.",
+   "evidence_files": [
+    "evidence/IAM-07.json"
+   ]
+  },
+  {
+   "check_id": "LOG-03",
+   "title": "CloudTrail logs are encrypted with KMS",
+   "description": "Encrypting trail logs with a customer-managed key restricts who can read them.",
+   "criteria": [
+    "CC6.1",
+    "CC7.2"
+   ],
+   "severity": "LOW",
+   "service": "cloudtrail",
+   "scope": "global",
+   "status": "FAIL",
+   "summary": "1 of 1 failing",
+   "regions": {},
+   "failed_resources": [
+    {
+     "region": "global",
+     "resource": "arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail",
+     "detail": "No KMS key"
+    }
+   ],
+   "errors": [],
+   "remediation": "Configure SSE-KMS on the trail with a dedicated customer-managed key.",
+   "evidence_files": [
+    "evidence/LOG-03.json"
+   ]
+  },
+  {
+   "check_id": "LOG-08",
+   "title": "Log groups retain logs for at least 365 days",
+   "description": "Auditors typically expect a year of log history for the observation window.",
+   "criteria": [
+    "CC7.2"
+   ],
+   "severity": "LOW",
+   "service": "logs",
+   "scope": "regional",
+   "status": "FAIL",
+   "summary": "1 of 2 resources fail (us-east-1)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [
+     "us-east-1"
+    ],
+    "ERROR": [],
+    "N/A": [
+     "us-west-2"
+    ]
+   },
+   "failed_resources": [
+    {
+     "region": "us-east-1",
+     "resource": "/aws/lambda/report-export",
+     "detail": "30 days"
+    }
+   ],
+   "errors": [],
+   "remediation": "Set retention to 365+ days (or 'never expire') on each log group.",
+   "evidence_files": [
+    "evidence/LOG-08__us-east-1.json",
+    "evidence/LOG-08__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "IAM-09",
+   "title": "IAM Access Analyzer is enabled",
+   "description": "Access Analyzer flags resources shared outside the account or organization.",
+   "criteria": [
+    "CC6.1",
+    "CC7.1"
+   ],
+   "severity": "MEDIUM",
+   "service": "access-analyzer",
+   "scope": "regional",
+   "status": "ERROR",
+   "summary": "Could not be evaluated in 2 region(s)",
+   "regions": {
+    "PASS": [],
+    "FAIL": [],
+    "ERROR": [
+     "us-east-1",
+     "us-west-2"
+    ],
+    "N/A": []
+   },
+   "failed_resources": [],
+   "errors": [
+    "us-east-1: The AWS simulator used for this sample does not support this API.",
+    "us-west-2: The AWS simulator used for this sample does not support this API."
+   ],
+   "remediation": "Create an account- or organization-level analyzer in this region.",
+   "evidence_files": [
+    "evidence/IAM-09__us-east-1.json",
+    "evidence/IAM-09__us-west-2.json"
+   ]
+  },
+  {
+   "check_id": "DATA-02",
+   "title": "No S3 bucket allows public access",
+   "description": "Each bucket must be covered by Block Public Access (bucket or account level).",
+   "criteria": [
+    "CC6.1",
+    "C1.1"
+   ],
+   "severity": "CRITICAL",
+   "service": "s3",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "4 of 4 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Enable Block Public Access on the bucket; serve public content through CloudFront with OAC instead.",
+   "evidence_files": [
+    "evidence/DATA-02.json"
+   ]
+  },
+  {
+   "check_id": "IAM-02",
+   "title": "Root account has no access keys",
+   "description": "Programmatic keys on the root user cannot be scoped down and should not exist.",
+   "criteria": [
+    "CC6.1"
+   ],
+   "severity": "CRITICAL",
+   "service": "iam",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "1 of 1 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Delete any root access keys and use IAM roles for programmatic access.",
+   "evidence_files": [
+    "evidence/IAM-02.json"
+   ]
+  },
+  {
+   "check_id": "LOG-01",
+   "title": "A multi-region CloudTrail trail is logging",
+   "description": "At least one trail must cover all regions and be actively delivering logs.",
+   "criteria": [
+    "CC7.2",
+    "CC7.3"
+   ],
+   "severity": "CRITICAL",
+   "service": "cloudtrail",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "1 of 1 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Create a multi-region trail (or an organization trail) delivering to a dedicated S3 bucket.",
+   "evidence_files": [
+    "evidence/LOG-01.json"
+   ]
+  },
+  {
+   "check_id": "DATA-01",
+   "title": "S3 Block Public Access is on at the account level",
+   "description": "Account-level Block Public Access prevents any bucket from being made public by mistake.",
+   "criteria": [
+    "CC6.1",
+    "C1.1"
+   ],
+   "severity": "HIGH",
+   "service": "s3",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "1 of 1 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Turn on all four Block Public Access settings for the account.",
+   "evidence_files": [
+    "evidence/DATA-01.json"
+   ]
+  },
+  {
+   "check_id": "IAM-05",
+   "title": "Access keys are rotated within 90 days",
+   "description": "Active IAM user access keys must be younger than 90 days.",
+   "criteria": [
+    "CC6.1",
+    "CC6.2"
+   ],
+   "severity": "MEDIUM",
+   "service": "iam",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "1 of 1 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Rotate old keys, or better, replace long-lived keys with IAM roles / IAM Identity Center.",
+   "evidence_files": [
+    "evidence/IAM-05.json"
+   ]
+  },
+  {
+   "check_id": "IAM-06",
+   "title": "Unused credentials are disabled",
+   "description": "Passwords and active keys unused for more than 45 days should be removed.",
+   "criteria": [
+    "CC6.2",
+    "CC6.3"
+   ],
+   "severity": "MEDIUM",
+   "service": "iam",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "3 of 3 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Disable or delete the stale password / access key; review whether the user still needs access.",
+   "evidence_files": [
+    "evidence/IAM-06.json"
+   ]
+  },
+  {
+   "check_id": "LOG-02",
+   "title": "CloudTrail log file validation is enabled",
+   "description": "Digest files let you prove logs were not altered after delivery.",
+   "criteria": [
+    "CC7.2"
+   ],
+   "severity": "MEDIUM",
+   "service": "cloudtrail",
+   "scope": "global",
+   "status": "PASS",
+   "summary": "1 of 1 passing",
+   "regions": {},
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Enable log file validation on the trail.",
+   "evidence_files": [
+    "evidence/LOG-02.json"
+   ]
+  },
+  {
+   "check_id": "NET-02",
+   "title": "Default security groups allow no traffic",
+   "description": "Default security groups get attached by accident; they should have no rules.",
+   "criteria": [
+    "CC6.6"
+   ],
+   "severity": "LOW",
+   "service": "ec2",
+   "scope": "regional",
+   "status": "PASS",
+   "summary": "All 2 resources pass",
+   "regions": {
+    "PASS": [
+     "us-east-1",
+     "us-west-2"
+    ],
+    "FAIL": [],
+    "ERROR": [],
+    "N/A": []
+   },
+   "failed_resources": [],
+   "errors": [],
+   "remediation": "Remove all inbound and outbound rules from each VPC's default security group.",
+   "evidence_files": [
+    "evidence/NET-02__us-east-1.json",
+    "evidence/NET-02__us-west-2.json"
+   ]
+  }
+ ],
  "criteria": [
   {
    "criterion": "CC1.1",
@@ -135,10 +1068,10 @@ window.SOC2KIT_SAMPLE = {
     "LOG-03"
    ],
    "manual_controls": [],
-   "pass": 5,
+   "pass": 4,
    "fail": 8,
-   "error": 2,
-   "na": 3
+   "error": 1,
+   "na": 0
   },
   {
    "criterion": "CC6.2",
@@ -205,10 +1138,10 @@ window.SOC2KIT_SAMPLE = {
     "NET-02"
    ],
    "manual_controls": [],
-   "pass": 3,
+   "pass": 1,
    "fail": 2,
    "error": 0,
-   "na": 1
+   "na": 0
   },
   {
    "criterion": "CC6.7",
@@ -231,7 +1164,7 @@ window.SOC2KIT_SAMPLE = {
    "manual_controls": [
     "MC-14"
    ],
-   "pass": 1,
+   "pass": 0,
    "fail": 1,
    "error": 0,
    "na": 0
@@ -247,9 +1180,9 @@ window.SOC2KIT_SAMPLE = {
    "manual_controls": [
     "MC-15"
    ],
-   "pass": 2,
+   "pass": 0,
    "fail": 2,
-   "error": 2,
+   "error": 1,
    "na": 0
   },
   {
@@ -264,10 +1197,10 @@ window.SOC2KIT_SAMPLE = {
     "LOG-08"
    ],
    "manual_controls": [],
-   "pass": 4,
+   "pass": 2,
    "fail": 4,
    "error": 0,
-   "na": 1
+   "na": 0
   },
   {
    "criterion": "CC7.3",
@@ -304,7 +1237,7 @@ window.SOC2KIT_SAMPLE = {
    "manual_controls": [
     "MC-18"
    ],
-   "pass": 1,
+   "pass": 0,
    "fail": 1,
    "error": 0,
    "na": 0
@@ -343,10 +1276,10 @@ window.SOC2KIT_SAMPLE = {
     "DATA-04"
    ],
    "manual_controls": [],
-   "pass": 1,
+   "pass": 0,
    "fail": 4,
    "error": 0,
-   "na": 2
+   "na": 0
   },
   {
    "criterion": "A1.3",
@@ -371,10 +1304,10 @@ window.SOC2KIT_SAMPLE = {
     "DATA-06"
    ],
    "manual_controls": [],
-   "pass": 3,
+   "pass": 2,
    "fail": 3,
    "error": 0,
-   "na": 1
+   "na": 0
   },
   {
    "criterion": "C1.2",
@@ -405,7 +1338,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set PubliclyAccessible to false and place the instance in private subnets.",
    "error": null,
    "evidence_file": "evidence/DATA-07__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -434,7 +1367,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Sign in as root and enable a hardware or virtual MFA device under Security credentials.",
    "error": null,
    "evidence_file": "evidence/IAM-01.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:root",
@@ -458,20 +1391,20 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
    "error": null,
    "evidence_file": "evidence/NET-01__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "sg-cf65606ba3360b536 (default)",
+     "resource": "sg-3cf3cafef4bf302bd (default)",
      "status": "PASS",
      "detail": "No open admin ports"
     },
     {
-     "resource": "sg-3e9e2eb22fcf9f64b (bastion)",
+     "resource": "sg-66222b5123eb54f73 (bastion)",
      "status": "FAIL",
      "detail": "Open to internet: SSH (22)"
     },
     {
-     "resource": "sg-ec2b2a6c266dccb2d (web-alb)",
+     "resource": "sg-e07ea84d39363f8cf (web-alb)",
      "status": "PASS",
      "detail": "No open admin ports"
     }
@@ -492,7 +1425,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set BackupRetentionPeriod to 7 or more.",
    "error": null,
    "evidence_file": "evidence/AVL-01__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -522,7 +1455,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Encryption can't be turned on in place: snapshot, copy the snapshot with encryption, restore.",
    "error": null,
    "evidence_file": "evidence/DATA-06__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -551,7 +1484,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable MFA for each listed user, or remove their console password and use IAM Identity Center.",
    "error": null,
    "evidence_file": "evidence/IAM-04.json",
-   "evaluated_at": "2026-10-26T14:42:53Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/jane.ortiz",
@@ -580,7 +1513,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Replace '*:*' with the specific actions and resources the principal needs.",
    "error": null,
    "evidence_file": "evidence/IAM-08.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:policy/ci-deploy",
@@ -610,7 +1543,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable AWS Config in this region, recording all resource types.",
    "error": null,
    "evidence_file": "evidence/LOG-04__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -635,7 +1568,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable GuardDuty in this region (ideally org-wide with a delegated admin).",
    "error": null,
    "evidence_file": "evidence/LOG-05__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -659,7 +1592,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).",
    "error": null,
    "evidence_file": "evidence/AVL-02__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:52Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:rds:us-east-1:123456789012:db:patients-prod",
@@ -688,7 +1621,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an AWS Backup plan covering production resources in this region.",
    "error": null,
    "evidence_file": "evidence/AVL-03__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:50Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -712,7 +1645,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Add a Deny statement for \"s3:*\" with Condition {\"Bool\": {\"aws:SecureTransport\": \"false\"}}.",
    "error": null,
    "evidence_file": "evidence/DATA-03.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::northwind-patient-exports",
@@ -752,7 +1685,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable EBS encryption by default in this region.",
    "error": null,
    "evidence_file": "evidence/DATA-05__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:50Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -776,15 +1709,15 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable automatic key rotation on the key.",
    "error": null,
    "evidence_file": "evidence/DATA-08__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "arn:aws:kms:us-east-1:123456789012:key/78edb106-fee5-492b-8ef9-b0b6be89ec39",
+     "resource": "arn:aws:kms:us-east-1:123456789012:key/13380f3a-37f7-4f0e-a71d-b7a832e1a4b0",
      "status": "PASS",
      "detail": "Rotation on"
     },
     {
-     "resource": "arn:aws:kms:us-east-1:123456789012:key/34298638-74ad-4425-8a87-bf9d4429585e",
+     "resource": "arn:aws:kms:us-east-1:123456789012:key/796fe191-66ff-4c30-b1bc-7e6d8fc811b2",
      "status": "FAIL",
      "detail": "Rotation off"
     }
@@ -805,7 +1738,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set an account password policy: minimum length 14, require upper/lower/number/symbol, prevent reuse of 24.",
    "error": null,
    "evidence_file": "evidence/IAM-03.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:root",
@@ -829,7 +1762,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable Security Hub with the AWS Foundational Security Best Practices standard.",
    "error": null,
    "evidence_file": "evidence/LOG-06__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:52Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "us-west-2",
@@ -853,10 +1786,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.",
    "error": null,
    "evidence_file": "evidence/LOG-07__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "vpc-6b2c3f62ea0a4b193",
+     "resource": "vpc-dd05bc29cc33c0616",
      "status": "FAIL",
      "detail": "No active flow log"
     }
@@ -878,7 +1811,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable versioning (and a lifecycle rule to expire old versions to control cost).",
    "error": null,
    "evidence_file": "evidence/DATA-04.json",
-   "evaluated_at": "2026-10-26T14:42:50Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::northwind-patient-exports",
@@ -917,10 +1850,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Configure a rotation Lambda and schedule for the secret.",
    "error": null,
    "evidence_file": "evidence/DATA-09__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-ShzdBB",
+     "resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-LYNLUp",
      "status": "FAIL",
      "detail": "Rotation off"
     }
@@ -941,7 +1874,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Move the user's policies onto a group or role and detach them from the user.",
    "error": null,
    "evidence_file": "evidence/IAM-07.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/jane.ortiz",
@@ -976,7 +1909,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Configure SSE-KMS on the trail with a dedicated customer-managed key.",
    "error": null,
    "evidence_file": "evidence/LOG-03.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail",
@@ -1000,7 +1933,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set retention to 365+ days (or 'never expire') on each log group.",
    "error": null,
    "evidence_file": "evidence/LOG-08__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "/aws/lambda/report-export",
@@ -1030,7 +1963,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an account- or organization-level analyzer in this region.",
    "error": "The AWS simulator used for this sample does not support this API.",
    "evidence_file": "evidence/IAM-09__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1049,7 +1982,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an account- or organization-level analyzer in this region.",
    "error": "The AWS simulator used for this sample does not support this API.",
    "evidence_file": "evidence/IAM-09__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1068,7 +2001,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable Block Public Access on the bucket; serve public content through CloudFront with OAC instead.",
    "error": null,
    "evidence_file": "evidence/DATA-02.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::northwind-patient-exports",
@@ -1107,7 +2040,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Delete any root access keys and use IAM roles for programmatic access.",
    "error": null,
    "evidence_file": "evidence/IAM-02.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:root",
@@ -1132,7 +2065,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create a multi-region trail (or an organization trail) delivering to a dedicated S3 bucket.",
    "error": null,
    "evidence_file": "evidence/LOG-01.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:cloudtrail:::123456789012",
@@ -1156,10 +2089,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.",
    "error": null,
    "evidence_file": "evidence/NET-01__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "sg-6d5a74ce87071ffbe (default)",
+     "resource": "sg-5e57fa49e5a51352c (default)",
      "status": "PASS",
      "detail": "No open admin ports"
     }
@@ -1181,7 +2114,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Turn on all four Block Public Access settings for the account.",
    "error": null,
    "evidence_file": "evidence/DATA-01.json",
-   "evaluated_at": "2026-10-26T14:42:50Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "arn:aws:s3:::account/123456789012",
@@ -1206,7 +2139,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable AWS Config in this region, recording all resource types.",
    "error": null,
    "evidence_file": "evidence/LOG-04__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -1231,7 +2164,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable GuardDuty in this region (ideally org-wide with a delegated admin).",
    "error": null,
    "evidence_file": "evidence/LOG-05__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -1255,7 +2188,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Create an AWS Backup plan covering production resources in this region.",
    "error": null,
    "evidence_file": "evidence/AVL-03__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -1280,7 +2213,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable EBS encryption by default in this region.",
    "error": null,
    "evidence_file": "evidence/DATA-05__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:50Z",
+   "evaluated_at": "2026-10-26T15:22:10Z",
    "findings": [
     {
      "resource": "us-east-1",
@@ -1305,7 +2238,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Rotate old keys, or better, replace long-lived keys with IAM roles / IAM Identity Center.",
    "error": null,
    "evidence_file": "evidence/IAM-05.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:13Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/ci-deploy-bot (key 1)",
@@ -1330,7 +2263,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Disable or delete the stale password / access key; review whether the user still needs access.",
    "error": null,
    "evidence_file": "evidence/IAM-06.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:iam::123456789012:user/jane.ortiz",
@@ -1364,7 +2297,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable log file validation on the trail.",
    "error": null,
    "evidence_file": "evidence/LOG-02.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail",
@@ -1388,7 +2321,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable Security Hub with the AWS Foundational Security Best Practices standard.",
    "error": null,
    "evidence_file": "evidence/LOG-06__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
      "resource": "arn:aws:securityhub:us-east-1:123456789012:hub/default",
@@ -1412,10 +2345,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.",
    "error": null,
    "evidence_file": "evidence/LOG-07__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "vpc-bf966e167e1b7faba",
+     "resource": "vpc-ce4064a3dd782645b",
      "status": "PASS",
      "detail": "Flow logs active"
     }
@@ -1436,10 +2369,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Remove all inbound and outbound rules from each VPC's default security group.",
    "error": null,
    "evidence_file": "evidence/NET-02__us-east-1.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "sg-cf65606ba3360b536 (vpc-bf966e167e1b7faba)",
+     "resource": "sg-3cf3cafef4bf302bd (vpc-ce4064a3dd782645b)",
      "status": "PASS",
      "detail": "No rules"
     }
@@ -1460,10 +2393,10 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Remove all inbound and outbound rules from each VPC's default security group.",
    "error": null,
    "evidence_file": "evidence/NET-02__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": [
     {
-     "resource": "sg-6d5a74ce87071ffbe (vpc-6b2c3f62ea0a4b193)",
+     "resource": "sg-5e57fa49e5a51352c (vpc-dd05bc29cc33c0616)",
      "status": "PASS",
      "detail": "No rules"
     }
@@ -1484,7 +2417,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set PubliclyAccessible to false and place the instance in private subnets.",
    "error": null,
    "evidence_file": "evidence/DATA-07__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:52Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1502,7 +2435,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set BackupRetentionPeriod to 7 or more.",
    "error": null,
    "evidence_file": "evidence/AVL-01__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1521,7 +2454,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Encryption can't be turned on in place: snapshot, copy the snapshot with encryption, restore.",
    "error": null,
    "evidence_file": "evidence/DATA-06__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:52Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1539,7 +2472,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).",
    "error": null,
    "evidence_file": "evidence/AVL-02__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:52Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1557,7 +2490,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Enable automatic key rotation on the key.",
    "error": null,
    "evidence_file": "evidence/DATA-08__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1575,7 +2508,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Configure a rotation Lambda and schedule for the secret.",
    "error": null,
    "evidence_file": "evidence/DATA-09__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   },
   {
@@ -1593,7 +2526,7 @@ window.SOC2KIT_SAMPLE = {
    "remediation": "Set retention to 365+ days (or 'never expire') on each log group.",
    "error": null,
    "evidence_file": "evidence/LOG-08__us-west-2.json",
-   "evaluated_at": "2026-10-26T14:42:51Z",
+   "evaluated_at": "2026-10-26T15:22:11Z",
    "findings": []
   }
  ],

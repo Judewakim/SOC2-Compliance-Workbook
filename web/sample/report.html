@@ -29,19 +29,20 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 </head>
 <body><main>
 <h1>SOC 2 Evidence Report</h1>
-<div class="muted">AWS account 123456789012 &middot; scanned 2026-10-26T14:42:53Z &middot; 2 region(s)</div>
+<div class="muted">AWS account 123456789012 &middot; scanned 2026-10-26T15:22:13Z &middot; 2 region(s)</div>
 
 <div class="grid">
-  <div class="card stat"><span class="muted">Automated score</span><b>42%</b></div>
-  <div class="card stat"><span class="muted">Passing</span><b>16</b></div>
-  <div class="card stat"><span class="muted">Failing</span><b>22</b></div>
-  <div class="card stat"><span class="muted">Could not evaluate</span><b>2</b></div>
-  <div class="card stat"><span class="muted">Not applicable</span><b>7</b></div>
+  <div class="card stat"><span class="muted">Automated score</span><b>27%</b></div>
+  <div class="card stat"><span class="muted">Controls passing</span><b>8</b></div>
+  <div class="card stat"><span class="muted">Controls failing</span><b>22</b></div>
+  <div class="card stat"><span class="muted">Could not evaluate</span><b>1</b></div>
+  <div class="card stat"><span class="muted">Not applicable</span><b>0</b></div>
 </div>
 
 <h2>Automated checks</h2>
+<p class="muted">One verdict per control: a control fails if it fails in any region. 47 region-level results are in <code>evidence/</code>.</p>
 <div class="scroll"><table>
-<thead><tr><th>Status</th><th>Check</th><th>Criteria</th><th>Severity</th><th>Region</th><th>Result</th></tr></thead>
+<thead><tr><th>Status</th><th>Check</th><th>Criteria</th><th>Severity</th><th>Result</th></tr></thead>
 <tbody>
 
 <tr>
@@ -50,13 +51,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> - Publicly accessible</li></ul>
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - Publicly accessible</li>
+</ul>
 <div><b>Fix:</b> Set PubliclyAccessible to false and place the instance in private subnets.</div>
-<div class="muted">Evidence: <code>evidence/DATA-07__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-07__us-east-1.json</code> <code>evidence/DATA-07__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.6</td><td>CRITICAL</td><td>us-east-1</td><td>1 of 2 failing</td>
+<td>CC6.6</td><td>CRITICAL</td><td>1 of 2 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -65,13 +67,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:iam::123456789012:root</code> - Root MFA is not enabled</li></ul>
+<ul><li><code>arn:aws:iam::123456789012:root</code> (global) - Root MFA is not enabled</li>
+</ul>
 <div><b>Fix:</b> Sign in as root and enable a hardware or virtual MFA device under Security credentials.</div>
-<div class="muted">Evidence: <code>evidence/IAM-01.json</code></div>
+<div class="muted">Evidence: <code>evidence/IAM-01.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1</td><td>CRITICAL</td><td>global</td><td>1 of 1 failing</td>
+<td>CC6.1</td><td>CRITICAL</td><td>1 of 1 failing</td>
 </tr>
 
 <tr>
@@ -80,13 +83,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>sg-3e9e2eb22fcf9f64b (bastion)</code> - Open to internet: SSH (22)</li></ul>
+<ul><li><code>sg-66222b5123eb54f73 (bastion)</code> (us-east-1) - Open to internet: SSH (22)</li>
+</ul>
 <div><b>Fix:</b> Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range.</div>
-<div class="muted">Evidence: <code>evidence/NET-01__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/NET-01__us-east-1.json</code> <code>evidence/NET-01__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.6</td><td>CRITICAL</td><td>us-east-1</td><td>1 of 3 failing</td>
+<td>CC6.6</td><td>CRITICAL</td><td>1 of 4 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -95,13 +99,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> - 1 day retention</li></ul>
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - 1 day retention</li>
+</ul>
 <div><b>Fix:</b> Set BackupRetentionPeriod to 7 or more.</div>
-<div class="muted">Evidence: <code>evidence/AVL-01__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/AVL-01__us-east-1.json</code> <code>evidence/AVL-01__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>A1.2</td><td>HIGH</td><td>us-east-1</td><td>1 of 2 failing</td>
+<td>A1.2</td><td>HIGH</td><td>1 of 2 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -110,13 +115,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> - Not encrypted</li></ul>
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - Not encrypted</li>
+</ul>
 <div><b>Fix:</b> Encryption can&#39;t be turned on in place: snapshot, copy the snapshot with encryption, restore.</div>
-<div class="muted">Evidence: <code>evidence/DATA-06__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-06__us-east-1.json</code> <code>evidence/DATA-06__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1, C1.1</td><td>HIGH</td><td>us-east-1</td><td>1 of 2 failing</td>
+<td>CC6.1, C1.1</td><td>HIGH</td><td>1 of 2 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -125,13 +131,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:iam::123456789012:user/mark.chen</code> - Console password without MFA</li></ul>
+<ul><li><code>arn:aws:iam::123456789012:user/mark.chen</code> (global) - Console password without MFA</li>
+</ul>
 <div><b>Fix:</b> Enable MFA for each listed user, or remove their console password and use IAM Identity Center.</div>
-<div class="muted">Evidence: <code>evidence/IAM-04.json</code></div>
+<div class="muted">Evidence: <code>evidence/IAM-04.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1</td><td>HIGH</td><td>global</td><td>1 of 2 failing</td>
+<td>CC6.1</td><td>HIGH</td><td>1 of 2 failing</td>
 </tr>
 
 <tr>
@@ -140,13 +147,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:iam::123456789012:policy/legacy-admin</code> - Allows *:*</li></ul>
+<ul><li><code>arn:aws:iam::123456789012:policy/legacy-admin</code> (global) - Allows *:*</li>
+</ul>
 <div><b>Fix:</b> Replace &#39;*:*&#39; with the specific actions and resources the principal needs.</div>
-<div class="muted">Evidence: <code>evidence/IAM-08.json</code></div>
+<div class="muted">Evidence: <code>evidence/IAM-08.json</code> </div>
 </details>
 
 </td>
-<td>CC6.3</td><td>HIGH</td><td>global</td><td>1 of 2 failing</td>
+<td>CC6.3</td><td>HIGH</td><td>1 of 2 failing</td>
 </tr>
 
 <tr>
@@ -155,13 +163,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>us-west-2</code> - No recorder</li></ul>
+<ul><li><code>us-west-2</code> (us-west-2) - No recorder</li>
+</ul>
 <div><b>Fix:</b> Enable AWS Config in this region, recording all resource types.</div>
-<div class="muted">Evidence: <code>evidence/LOG-04__us-west-2.json</code></div>
+<div class="muted">Evidence: <code>evidence/LOG-04__us-east-1.json</code> <code>evidence/LOG-04__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC7.1, CC8.1</td><td>HIGH</td><td>us-west-2</td><td>1 of 1 failing</td>
+<td>CC7.1, CC8.1</td><td>HIGH</td><td>Fails in 1 of 2 regions (us-west-2)</td>
 </tr>
 
 <tr>
@@ -170,13 +179,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>us-west-2</code> - No enabled detector</li></ul>
+<ul><li><code>us-west-2</code> (us-west-2) - No enabled detector</li>
+</ul>
 <div><b>Fix:</b> Enable GuardDuty in this region (ideally org-wide with a delegated admin).</div>
-<div class="muted">Evidence: <code>evidence/LOG-05__us-west-2.json</code></div>
+<div class="muted">Evidence: <code>evidence/LOG-05__us-east-1.json</code> <code>evidence/LOG-05__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.8, CC7.2</td><td>HIGH</td><td>us-west-2</td><td>1 of 1 failing</td>
+<td>CC6.8, CC7.2</td><td>HIGH</td><td>Fails in 1 of 2 regions (us-west-2)</td>
 </tr>
 
 <tr>
@@ -185,13 +195,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> - Single-AZ</li></ul>
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - Single-AZ</li>
+</ul>
 <div><b>Fix:</b> Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).</div>
-<div class="muted">Evidence: <code>evidence/AVL-02__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/AVL-02__us-east-1.json</code> <code>evidence/AVL-02__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>A1.2</td><td>MEDIUM</td><td>us-east-1</td><td>1 of 2 failing</td>
+<td>A1.2</td><td>MEDIUM</td><td>1 of 2 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -200,13 +211,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>us-west-2</code> - No backup plans</li></ul>
+<ul><li><code>us-west-2</code> (us-west-2) - No backup plans</li>
+</ul>
 <div><b>Fix:</b> Create an AWS Backup plan covering production resources in this region.</div>
-<div class="muted">Evidence: <code>evidence/AVL-03__us-west-2.json</code></div>
+<div class="muted">Evidence: <code>evidence/AVL-03__us-east-1.json</code> <code>evidence/AVL-03__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>A1.2</td><td>MEDIUM</td><td>us-west-2</td><td>1 of 1 failing</td>
+<td>A1.2</td><td>MEDIUM</td><td>Fails in 1 of 2 regions (us-west-2)</td>
 </tr>
 
 <tr>
@@ -215,13 +227,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:s3:::northwind-app-logs</code> - No SecureTransport deny</li></ul>
+<ul><li><code>arn:aws:s3:::northwind-app-logs</code> (global) - No SecureTransport deny</li>
+</ul>
 <div><b>Fix:</b> Add a Deny statement for &#34;s3:*&#34; with Condition {&#34;Bool&#34;: {&#34;aws:SecureTransport&#34;: &#34;false&#34;}}.</div>
-<div class="muted">Evidence: <code>evidence/DATA-03.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-03.json</code> </div>
 </details>
 
 </td>
-<td>CC6.7</td><td>MEDIUM</td><td>global</td><td>1 of 4 failing</td>
+<td>CC6.7</td><td>MEDIUM</td><td>1 of 4 failing</td>
 </tr>
 
 <tr>
@@ -230,13 +243,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>us-west-2</code> - Off</li></ul>
+<ul><li><code>us-west-2</code> (us-west-2) - Off</li>
+</ul>
 <div><b>Fix:</b> Enable EBS encryption by default in this region.</div>
-<div class="muted">Evidence: <code>evidence/DATA-05__us-west-2.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-05__us-east-1.json</code> <code>evidence/DATA-05__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1, C1.1</td><td>MEDIUM</td><td>us-west-2</td><td>1 of 1 failing</td>
+<td>CC6.1, C1.1</td><td>MEDIUM</td><td>Fails in 1 of 2 regions (us-west-2)</td>
 </tr>
 
 <tr>
@@ -245,13 +259,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:kms:us-east-1:123456789012:key/34298638-74ad-4425-8a87-bf9d4429585e</code> - Rotation off</li></ul>
+<ul><li><code>arn:aws:kms:us-east-1:123456789012:key/796fe191-66ff-4c30-b1bc-7e6d8fc811b2</code> (us-east-1) - Rotation off</li>
+</ul>
 <div><b>Fix:</b> Enable automatic key rotation on the key.</div>
-<div class="muted">Evidence: <code>evidence/DATA-08__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-08__us-east-1.json</code> <code>evidence/DATA-08__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1</td><td>MEDIUM</td><td>us-east-1</td><td>1 of 2 failing</td>
+<td>CC6.1</td><td>MEDIUM</td><td>1 of 2 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -260,13 +275,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:iam::123456789012:root</code> - minimum length 8 &lt; 14; RequireSymbols is off; reuse prevention 0 &lt; 24</li></ul>
+<ul><li><code>arn:aws:iam::123456789012:root</code> (global) - minimum length 8 &lt; 14; RequireSymbols is off; reuse prevention 0 &lt; 24</li>
+</ul>
 <div><b>Fix:</b> Set an account password policy: minimum length 14, require upper/lower/number/symbol, prevent reuse of 24.</div>
-<div class="muted">Evidence: <code>evidence/IAM-03.json</code></div>
+<div class="muted">Evidence: <code>evidence/IAM-03.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1</td><td>MEDIUM</td><td>global</td><td>1 of 1 failing</td>
+<td>CC6.1</td><td>MEDIUM</td><td>1 of 1 failing</td>
 </tr>
 
 <tr>
@@ -275,13 +291,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>us-west-2</code> - Not enabled</li></ul>
+<ul><li><code>us-west-2</code> (us-west-2) - Not enabled</li>
+</ul>
 <div><b>Fix:</b> Enable Security Hub with the AWS Foundational Security Best Practices standard.</div>
-<div class="muted">Evidence: <code>evidence/LOG-06__us-west-2.json</code></div>
+<div class="muted">Evidence: <code>evidence/LOG-06__us-east-1.json</code> <code>evidence/LOG-06__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC7.1</td><td>MEDIUM</td><td>us-west-2</td><td>1 of 1 failing</td>
+<td>CC7.1</td><td>MEDIUM</td><td>1 of 2 resources fail (us-west-2)</td>
 </tr>
 
 <tr>
@@ -290,13 +307,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>vpc-6b2c3f62ea0a4b193</code> - No active flow log</li></ul>
+<ul><li><code>vpc-dd05bc29cc33c0616</code> (us-west-2) - No active flow log</li>
+</ul>
 <div><b>Fix:</b> Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.</div>
-<div class="muted">Evidence: <code>evidence/LOG-07__us-west-2.json</code></div>
+<div class="muted">Evidence: <code>evidence/LOG-07__us-east-1.json</code> <code>evidence/LOG-07__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC7.2</td><td>MEDIUM</td><td>us-west-2</td><td>1 of 1 failing</td>
+<td>CC7.2</td><td>MEDIUM</td><td>1 of 2 resources fail (us-west-2)</td>
 </tr>
 
 <tr>
@@ -305,13 +323,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:s3:::northwind-web-assets</code> - Versioning Disabled</li></ul>
+<ul><li><code>arn:aws:s3:::northwind-web-assets</code> (global) - Versioning Disabled</li>
+</ul>
 <div><b>Fix:</b> Enable versioning (and a lifecycle rule to expire old versions to control cost).</div>
-<div class="muted">Evidence: <code>evidence/DATA-04.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-04.json</code> </div>
 </details>
 
 </td>
-<td>A1.2, C1.1</td><td>LOW</td><td>global</td><td>1 of 4 failing</td>
+<td>A1.2, C1.1</td><td>LOW</td><td>1 of 4 failing</td>
 </tr>
 
 <tr>
@@ -320,13 +339,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-ShzdBB</code> - Rotation off</li></ul>
+<ul><li><code>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-LYNLUp</code> (us-east-1) - Rotation off</li>
+</ul>
 <div><b>Fix:</b> Configure a rotation Lambda and schedule for the secret.</div>
-<div class="muted">Evidence: <code>evidence/DATA-09__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/DATA-09__us-east-1.json</code> <code>evidence/DATA-09__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1</td><td>LOW</td><td>us-east-1</td><td>1 of 1 failing</td>
+<td>CC6.1</td><td>LOW</td><td>1 of 1 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -335,13 +355,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:iam::123456789012:user/ci-deploy-bot</code> - 1 policies attached directly</li></ul>
+<ul><li><code>arn:aws:iam::123456789012:user/ci-deploy-bot</code> (global) - 1 policies attached directly</li>
+</ul>
 <div><b>Fix:</b> Move the user&#39;s policies onto a group or role and detach them from the user.</div>
-<div class="muted">Evidence: <code>evidence/IAM-07.json</code></div>
+<div class="muted">Evidence: <code>evidence/IAM-07.json</code> </div>
 </details>
 
 </td>
-<td>CC6.3</td><td>LOW</td><td>global</td><td>1 of 3 failing</td>
+<td>CC6.3</td><td>LOW</td><td>1 of 3 failing</td>
 </tr>
 
 <tr>
@@ -350,13 +371,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail</code> - No KMS key</li></ul>
+<ul><li><code>arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail</code> (global) - No KMS key</li>
+</ul>
 <div><b>Fix:</b> Configure SSE-KMS on the trail with a dedicated customer-managed key.</div>
-<div class="muted">Evidence: <code>evidence/LOG-03.json</code></div>
+<div class="muted">Evidence: <code>evidence/LOG-03.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1, CC7.2</td><td>LOW</td><td>global</td><td>1 of 1 failing</td>
+<td>CC6.1, CC7.2</td><td>LOW</td><td>1 of 1 failing</td>
 </tr>
 
 <tr>
@@ -365,13 +387,14 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 
 <details><summary>Details &amp; fix</summary>
 
-<ul><li><code>/aws/lambda/report-export</code> - 30 days</li></ul>
+<ul><li><code>/aws/lambda/report-export</code> (us-east-1) - 30 days</li>
+</ul>
 <div><b>Fix:</b> Set retention to 365+ days (or &#39;never expire&#39;) on each log group.</div>
-<div class="muted">Evidence: <code>evidence/LOG-08__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/LOG-08__us-east-1.json</code> <code>evidence/LOG-08__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC7.2</td><td>LOW</td><td>us-east-1</td><td>1 of 2 failing</td>
+<td>CC7.2</td><td>LOW</td><td>1 of 2 resources fail (us-east-1)</td>
 </tr>
 
 <tr>
@@ -379,29 +402,15 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>IAM-09</b> IAM Access Analyzer is enabled
 
 <details><summary>Details &amp; fix</summary>
-<div><code>The AWS simulator used for this sample does not support this API.</code></div>
-<ul></ul>
+<div><code>us-east-1: The AWS simulator used for this sample does not support this API.</code></div><div><code>us-west-2: The AWS simulator used for this sample does not support this API.</code></div>
+<ul>
+</ul>
 <div><b>Fix:</b> Create an account- or organization-level analyzer in this region.</div>
-<div class="muted">Evidence: <code>evidence/IAM-09__us-east-1.json</code></div>
+<div class="muted">Evidence: <code>evidence/IAM-09__us-east-1.json</code> <code>evidence/IAM-09__us-west-2.json</code> </div>
 </details>
 
 </td>
-<td>CC6.1, CC7.1</td><td>MEDIUM</td><td>us-east-1</td><td>Check could not be evaluated</td>
-</tr>
-
-<tr>
-<td><span class="pill ERROR">ERROR</span></td>
-<td><b>IAM-09</b> IAM Access Analyzer is enabled
-
-<details><summary>Details &amp; fix</summary>
-<div><code>The AWS simulator used for this sample does not support this API.</code></div>
-<ul></ul>
-<div><b>Fix:</b> Create an account- or organization-level analyzer in this region.</div>
-<div class="muted">Evidence: <code>evidence/IAM-09__us-west-2.json</code></div>
-</details>
-
-</td>
-<td>CC6.1, CC7.1</td><td>MEDIUM</td><td>us-west-2</td><td>Check could not be evaluated</td>
+<td>CC6.1, CC7.1</td><td>MEDIUM</td><td>Could not be evaluated in 2 region(s)</td>
 </tr>
 
 <tr>
@@ -409,7 +418,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>DATA-02</b> No S3 bucket allows public access
 
 </td>
-<td>CC6.1, C1.1</td><td>CRITICAL</td><td>global</td><td>4 of 4 passing</td>
+<td>CC6.1, C1.1</td><td>CRITICAL</td><td>4 of 4 passing</td>
 </tr>
 
 <tr>
@@ -417,7 +426,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>IAM-02</b> Root account has no access keys
 
 </td>
-<td>CC6.1</td><td>CRITICAL</td><td>global</td><td>1 of 1 passing</td>
+<td>CC6.1</td><td>CRITICAL</td><td>1 of 1 passing</td>
 </tr>
 
 <tr>
@@ -425,15 +434,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>LOG-01</b> A multi-region CloudTrail trail is logging
 
 </td>
-<td>CC7.2, CC7.3</td><td>CRITICAL</td><td>global</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>NET-01</b> No security group exposes SSH or RDP to the internet
-
-</td>
-<td>CC6.6</td><td>CRITICAL</td><td>us-west-2</td><td>1 of 1 passing</td>
+<td>CC7.2, CC7.3</td><td>CRITICAL</td><td>1 of 1 passing</td>
 </tr>
 
 <tr>
@@ -441,39 +442,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>DATA-01</b> S3 Block Public Access is on at the account level
 
 </td>
-<td>CC6.1, C1.1</td><td>HIGH</td><td>global</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>LOG-04</b> AWS Config is recording
-
-</td>
-<td>CC7.1, CC8.1</td><td>HIGH</td><td>us-east-1</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>LOG-05</b> GuardDuty is enabled
-
-</td>
-<td>CC6.8, CC7.2</td><td>HIGH</td><td>us-east-1</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>AVL-03</b> An AWS Backup plan exists
-
-</td>
-<td>A1.2</td><td>MEDIUM</td><td>us-east-1</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>DATA-05</b> EBS encryption by default is on
-
-</td>
-<td>CC6.1, C1.1</td><td>MEDIUM</td><td>us-east-1</td><td>1 of 1 passing</td>
+<td>CC6.1, C1.1</td><td>HIGH</td><td>1 of 1 passing</td>
 </tr>
 
 <tr>
@@ -481,7 +450,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>IAM-05</b> Access keys are rotated within 90 days
 
 </td>
-<td>CC6.1, CC6.2</td><td>MEDIUM</td><td>global</td><td>1 of 1 passing</td>
+<td>CC6.1, CC6.2</td><td>MEDIUM</td><td>1 of 1 passing</td>
 </tr>
 
 <tr>
@@ -489,7 +458,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>IAM-06</b> Unused credentials are disabled
 
 </td>
-<td>CC6.2, CC6.3</td><td>MEDIUM</td><td>global</td><td>3 of 3 passing</td>
+<td>CC6.2, CC6.3</td><td>MEDIUM</td><td>3 of 3 passing</td>
 </tr>
 
 <tr>
@@ -497,23 +466,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>LOG-02</b> CloudTrail log file validation is enabled
 
 </td>
-<td>CC7.2</td><td>MEDIUM</td><td>global</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>LOG-06</b> Security Hub is enabled
-
-</td>
-<td>CC7.1</td><td>MEDIUM</td><td>us-east-1</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>LOG-07</b> Every VPC has flow logs
-
-</td>
-<td>CC7.2</td><td>MEDIUM</td><td>us-east-1</td><td>1 of 1 passing</td>
+<td>CC7.2</td><td>MEDIUM</td><td>1 of 1 passing</td>
 </tr>
 
 <tr>
@@ -521,71 +474,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td><b>NET-02</b> Default security groups allow no traffic
 
 </td>
-<td>CC6.6</td><td>LOW</td><td>us-east-1</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill PASS">PASS</span></td>
-<td><b>NET-02</b> Default security groups allow no traffic
-
-</td>
-<td>CC6.6</td><td>LOW</td><td>us-west-2</td><td>1 of 1 passing</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>DATA-07</b> RDS databases are not publicly accessible
-
-</td>
-<td>CC6.6</td><td>CRITICAL</td><td>us-west-2</td><td>No resources in scope</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>AVL-01</b> RDS automated backups are kept at least 7 days
-
-</td>
-<td>A1.2</td><td>HIGH</td><td>us-west-2</td><td>No resources in scope</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>DATA-06</b> RDS databases are encrypted at rest
-
-</td>
-<td>CC6.1, C1.1</td><td>HIGH</td><td>us-west-2</td><td>No resources in scope</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>AVL-02</b> RDS databases are Multi-AZ
-
-</td>
-<td>A1.2</td><td>MEDIUM</td><td>us-west-2</td><td>No resources in scope</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>DATA-08</b> Customer-managed KMS keys rotate automatically
-
-</td>
-<td>CC6.1</td><td>MEDIUM</td><td>us-west-2</td><td>No resources in scope</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>DATA-09</b> Secrets Manager secrets rotate automatically
-
-</td>
-<td>CC6.1</td><td>LOW</td><td>us-west-2</td><td>No resources in scope</td>
-</tr>
-
-<tr>
-<td><span class="pill NA">N/A</span></td>
-<td><b>LOG-08</b> Log groups retain logs for at least 365 days
-
-</td>
-<td>CC7.2</td><td>LOW</td><td>us-west-2</td><td>No resources in scope</td>
+<td>CC6.6</td><td>LOW</td><td>All 2 resources pass</td>
 </tr>
 
 </tbody></table></div>
@@ -620,7 +509,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td>MC-08</td><td>0 / 0</td></tr>
 
 <tr><td><b>CC6.1</b></td><td>Logical access security software, infrastructure and architecture</td><td>DATA-01, DATA-02, DATA-05, DATA-06, DATA-08, DATA-09, IAM-01, IAM-02, IAM-03, IAM-04, IAM-05, IAM-09, LOG-03</td>
-<td>-</td><td>5 / 8</td></tr>
+<td>-</td><td>4 / 8</td></tr>
 
 <tr><td><b>CC6.2</b></td><td>User registration and authorization</td><td>IAM-05, IAM-06</td>
 <td>MC-09, MC-10</td><td>2 / 0</td></tr>
@@ -635,19 +524,19 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td>MC-13</td><td>0 / 0</td></tr>
 
 <tr><td><b>CC6.6</b></td><td>Protection against threats from outside system boundaries</td><td>DATA-07, NET-01, NET-02</td>
-<td>-</td><td>3 / 2</td></tr>
+<td>-</td><td>1 / 2</td></tr>
 
 <tr><td><b>CC6.7</b></td><td>Restriction of data transmission and movement</td><td>DATA-03</td>
 <td>-</td><td>0 / 1</td></tr>
 
 <tr><td><b>CC6.8</b></td><td>Prevention / detection of unauthorized or malicious software</td><td>LOG-05</td>
-<td>MC-14</td><td>1 / 1</td></tr>
+<td>MC-14</td><td>0 / 1</td></tr>
 
 <tr><td><b>CC7.1</b></td><td>Detection of configuration changes and vulnerabilities</td><td>IAM-09, LOG-04, LOG-06</td>
-<td>MC-15</td><td>2 / 2</td></tr>
+<td>MC-15</td><td>0 / 2</td></tr>
 
 <tr><td><b>CC7.2</b></td><td>Monitoring of system components for anomalies</td><td>LOG-01, LOG-02, LOG-03, LOG-05, LOG-07, LOG-08</td>
-<td>-</td><td>4 / 4</td></tr>
+<td>-</td><td>2 / 4</td></tr>
 
 <tr><td><b>CC7.3</b></td><td>Evaluation of security events</td><td>LOG-01</td>
 <td>MC-16</td><td>1 / 0</td></tr>
@@ -656,7 +545,7 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td>MC-17</td><td>0 / 0</td></tr>
 
 <tr><td><b>CC8.1</b></td><td>Change management</td><td>LOG-04</td>
-<td>MC-18</td><td>1 / 1</td></tr>
+<td>MC-18</td><td>0 / 1</td></tr>
 
 <tr><td><b>CC9.1</b></td><td>Business disruption risk mitigation</td><td>-</td>
 <td>MC-19</td><td>0 / 0</td></tr>
@@ -665,13 +554,13 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 <td>MC-20</td><td>0 / 0</td></tr>
 
 <tr><td><b>A1.2</b></td><td>Backup and recovery infrastructure</td><td>AVL-01, AVL-02, AVL-03, DATA-04</td>
-<td>-</td><td>1 / 4</td></tr>
+<td>-</td><td>0 / 4</td></tr>
 
 <tr><td><b>A1.3</b></td><td>Recovery plan testing</td><td>-</td>
 <td>MC-21</td><td>0 / 0</td></tr>
 
 <tr><td><b>C1.1</b></td><td>Identification and protection of confidential information</td><td>DATA-01, DATA-02, DATA-04, DATA-05, DATA-06</td>
-<td>-</td><td>3 / 3</td></tr>
+<td>-</td><td>2 / 3</td></tr>
 
 <tr><td><b>C1.2</b></td><td>Disposal of confidential information</td><td>-</td>
 <td>MC-22</td><td>0 / 0</td></tr>
@@ -730,6 +619,6 @@ details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:1
 </tbody></table></div>
 
 <p class="note">Automated technical evidence only. Criteria mappings are guidance; your auditor determines control sufficiency. Most SOC 2 controls are procedural - see manual_controls. Raw API responses for every check are in the <code>evidence/</code> folder;
-<code>manifest.json</code> lists a SHA-256 hash for each file. Generated by soc2kit 2.0.0
+<code>manifest.json</code> lists a SHA-256 hash for each file. Generated by soc2kit 2.1.0
 as <code>arn:aws:iam::123456789012:role/soc2kit-readonly (simulated)</code>.</p>
 </main></body></html>
