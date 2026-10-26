@@ -46,8 +46,9 @@ def account_bpa(ctx: CheckContext):
 
 @check(
     id="DATA-02",
-    title="No S3 bucket allows public access",
-    description="Each bucket must be covered by Block Public Access (bucket or account level).",
+    title="Every S3 bucket is protected by Block Public Access",
+    description=("Each bucket must be covered by all four Block Public Access settings (bucket or account level). "
+                 "A bucket without them is not necessarily public today, but nothing stops it becoming public."),
     criteria=["CC6.1", "C1.1"],
     severity=Severity.CRITICAL,
     service="s3",

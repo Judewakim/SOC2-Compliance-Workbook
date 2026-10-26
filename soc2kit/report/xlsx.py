@@ -58,19 +58,26 @@ def write_workbook(summary: dict, path: str) -> None:
         ["Regions", ", ".join(summary["regions"])],
         ["Scan started (UTC)", summary["started_at"]],
         ["Scan finished (UTC)", summary["finished_at"]],
-        ["Automated score", f"{summary['score']}% of evaluated checks passing"],
-        ["Pass / Fail / Error / N/A", f"{c['PASS']} / {c['FAIL']} / {c['ERROR']} / {c['N/A']}"],
+        ["Automated score", f"{summary['score']}% of evaluated controls passing"],
+        ["Controls: pass / fail / error / N/A", f"{c['PASS']} / {c['FAIL']} / {c['ERROR']} / {c['N/A']}"],
+        ["Region-level results", str(sum(summary["result_counts"].values()))],
         ["Tool", f"{summary['tool']['name']} {summary['tool']['version']}"],
         ["Note", summary["disclaimer"]],
     ], [28, 100])
 
-    _sheet(wb, "Automated Checks",
-           ["Check", "Title", "Criteria", "Severity", "Region", "Status", "Result", "Remediation",
-            "Evidence file", "Evaluated (UTC)"],
-           [[r["check_id"], r["title"], ", ".join(r["criteria"]), r["severity"], r["region"], r["status"],
-             r["summary"] + (f" ({r['error']})" if r["error"] else ""), r["remediation"], r["evidence_file"],
-             r["evaluated_at"]] for r in summary["results"]],
-           [10, 42, 14, 11, 14, 9, 40, 60, 34, 22], status_col=5)
+    _sheet(wb, "Controls",
+           ["Check", "Title", "Criteria", "Severity", "Status", "Result", "Remediation", "Evidence files"],
+           [[c["check_id"], c["title"], ", ".join(c["criteria"]), c["severity"], c["status"], c["summary"],
+             c["remediation"], ", ".join(c["evidence_files"][:5]) + (" ..." if len(c["evidence_files"]) > 5 else "")]
+            for c in summary["checks"]],
+           [10, 42, 14, 11, 9, 46, 60, 40], status_col=4)
+
+    _sheet(wb, "Region Detail",
+           ["Check", "Title", "Region", "Status", "Result", "Evidence file", "Evaluated (UTC)"],
+           [[r["check_id"], r["title"], r["region"], r["status"],
+             r["summary"] + (f" ({r['error']})" if r["error"] else ""), r["evidence_file"], r["evaluated_at"]]
+            for r in summary["results"]],
+           [10, 42, 14, 9, 40, 34, 22], status_col=3)
 
     findings = [[r["check_id"], r["region"], f["resource"], f["status"], f["detail"], r["remediation"]]
                 for r in summary["results"] for f in r["findings"] if f["status"] == "FAIL"]

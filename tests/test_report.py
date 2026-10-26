@@ -29,7 +29,7 @@ def test_pack_contents_and_manifest(session, tmp_path):
 def test_workbook_sheets(session, tmp_path):
     write_pack(_scan(session), str(tmp_path), make_zip=False)
     wb = load_workbook(tmp_path / "workbook.xlsx")
-    assert wb.sheetnames == ["Summary", "Automated Checks", "Failed Resources", "Manual Controls", "Criteria Coverage"]
+    assert wb.sheetnames == ["Summary", "Controls", "Region Detail", "Failed Resources", "Manual Controls", "Criteria Coverage"]
     assert wb["Manual Controls"].max_row > 20
 
 
@@ -46,3 +46,30 @@ def test_untrusted_resource_names_are_neutralised(session, tmp_path):
     ws = load_workbook(tmp_path / "workbook.xlsx")["Failed Resources"]
     values = [c.value for row in ws.iter_rows(min_row=2) for c in row if isinstance(c.value, str)]
     assert not any(v.startswith("=") for v in values)
+
+
+def test_one_verdict_per_control_across_regions(session):
+    # EBS default encryption on in one region, off in the other: one failing control, not two results.
+    session.client("ec2", region_name="us-east-1").enable_ebs_encryption_by_default()
+    result = scan(session, regions=["us-east-1", "us-west-2"], check_ids=["DATA-05"])
+    from soc2kit.report import build_summary
+    s = build_summary(result)
+    assert len(s["results"]) == 2 and len(s["checks"]) == 1
+    c = s["checks"][0]
+    assert c["status"] == "FAIL" and c["regions"]["FAIL"] == ["us-west-2"] and c["regions"]["PASS"] == ["us-east-1"]
+    assert s["counts"]["FAIL"] == 1 and s["result_counts"]["FAIL"] == 1 and s["result_counts"]["PASS"] == 1
+    assert "Fails in 1 of 2 regions" in c["summary"]
+
+
+def test_rollup_precedence():
+    from soc2kit.models import Status
+    from soc2kit.report.summary import rollup
+
+    class R:
+        def __init__(self, s):
+            self.status = s
+
+    assert rollup([R(Status.PASS), R(Status.ERROR)]) == Status.ERROR      # an untested region blocks a pass
+    assert rollup([R(Status.ERROR), R(Status.FAIL)]) == Status.FAIL
+    assert rollup([R(Status.NOT_APPLICABLE), R(Status.PASS)]) == Status.PASS
+    assert rollup([R(Status.NOT_APPLICABLE)]) == Status.NOT_APPLICABLE

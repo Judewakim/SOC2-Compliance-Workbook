@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOC 2 Evidence Report - 123456789012</title>
+<style>
+:root{--bg:#f8fafc;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+--pass:#047857;--pass-bg:#d1fae5;--fail:#b91c1c;--fail-bg:#fee2e2;--err:#92400e;--err-bg:#fef3c7;--na:#475569;--na-bg:#f1f5f9}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1120;--card:#111827;--ink:#e5e7eb;--muted:#94a3b8;--line:#1f2937;
+--pass:#6ee7b7;--pass-bg:#064e3b;--fail:#fca5a5;--fail-bg:#7f1d1d;--err:#fcd34d;--err-bg:#78350f;--na:#cbd5e1;--na-bg:#1e293b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:32px 16px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:17px;margin:32px 0 12px}
+.muted{color:var(--muted)}.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:20px}
+.stat b{display:block;font-size:26px}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.PASS{color:var(--pass);background:var(--pass-bg)}.FAIL{color:var(--fail);background:var(--fail-bg)}
+.ERROR{color:var(--err);background:var(--err-bg)}.NA{color:var(--na);background:var(--na-bg)}
+details summary{cursor:pointer;color:var(--muted)}ul{margin:6px 0;padding-left:18px}code{font-size:12px;word-break:break-all}
+.note{font-size:13px;color:var(--muted);margin-top:24px}
+.scroll{overflow-x:auto}
+@media print{details{display:block}details>*{display:block}}
+</style>
+</head>
+<body><main>
+<h1>SOC 2 Evidence Report</h1>
+<div class="muted">AWS account 123456789012 &middot; scanned 2026-10-26T15:36:29Z &middot; 2 region(s)</div>
+
+<div class="grid">
+  <div class="card stat"><span class="muted">Automated score</span><b>27%</b></div>
+  <div class="card stat"><span class="muted">Controls passing</span><b>8</b></div>
+  <div class="card stat"><span class="muted">Controls failing</span><b>22</b></div>
+  <div class="card stat"><span class="muted">Could not evaluate</span><b>1</b></div>
+  <div class="card stat"><span class="muted">Not applicable</span><b>0</b></div>
+</div>
+
+<h2>Automated checks</h2>
+<p class="muted">One verdict per control: a control fails if it fails in any region. 47 region-level results are in <code>evidence/</code>.</p>
+<div class="scroll"><table>
+<thead><tr><th>Status</th><th>Check</th><th>Criteria</th><th>Severity</th><th>Result</th></tr></thead>
+<tbody>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-07</b> RDS databases are not publicly accessible
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - Publicly accessible</li>
+</ul>
+<div><b>Fix:</b> Set PubliclyAccessible to false and place the instance in private subnets.</div>
+<div class="muted">Evidence: <code>evidence/DATA-07__us-east-1.json</code> <code>evidence/DATA-07__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.6</td><td>CRITICAL</td><td>1 of 2 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>IAM-01</b> Root account has MFA enabled
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:iam::123456789012:root</code> (global) - Root MFA is not enabled</li>
+</ul>
+<div><b>Fix:</b> Sign in as root and enable a hardware or virtual MFA device under Security credentials.</div>
+<div class="muted">Evidence: <code>evidence/IAM-01.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1</td><td>CRITICAL</td><td>1 of 1 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>NET-01</b> No security group exposes SSH or RDP to the internet
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>sg-6849222529ab1c680 (bastion)</code> (us-east-1) - Open to internet: SSH (22) (not attached to anything, safe to delete)</li>
+</ul>
+<div><b>Fix:</b> Remove the open rule; use SSM Session Manager or a VPN / bastion with a narrow source range. Groups not attached to anything can simply be deleted.</div>
+<div class="muted">Evidence: <code>evidence/NET-01__us-east-1.json</code> <code>evidence/NET-01__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.6</td><td>CRITICAL</td><td>1 of 4 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>AVL-01</b> RDS automated backups are kept at least 7 days
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - 1 day retention</li>
+</ul>
+<div><b>Fix:</b> Set BackupRetentionPeriod to 7 or more.</div>
+<div class="muted">Evidence: <code>evidence/AVL-01__us-east-1.json</code> <code>evidence/AVL-01__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>A1.2</td><td>HIGH</td><td>1 of 2 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-06</b> RDS databases are encrypted at rest
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - Not encrypted</li>
+</ul>
+<div><b>Fix:</b> Encryption can&#39;t be turned on in place: snapshot, copy the snapshot with encryption, restore.</div>
+<div class="muted">Evidence: <code>evidence/DATA-06__us-east-1.json</code> <code>evidence/DATA-06__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1, C1.1</td><td>HIGH</td><td>1 of 2 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>IAM-04</b> Every console user has MFA
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:iam::123456789012:user/mark.chen</code> (global) - Console password without MFA</li>
+</ul>
+<div><b>Fix:</b> Enable MFA for each listed user, or remove their console password and use IAM Identity Center.</div>
+<div class="muted">Evidence: <code>evidence/IAM-04.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1</td><td>HIGH</td><td>1 of 2 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>IAM-08</b> No customer-managed policy grants full admin (*:*)
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:iam::123456789012:policy/legacy-admin</code> (global) - Allows *:*</li>
+</ul>
+<div><b>Fix:</b> Replace &#39;*:*&#39; with the specific actions and resources the principal needs.</div>
+<div class="muted">Evidence: <code>evidence/IAM-08.json</code> </div>
+</details>
+
+</td>
+<td>CC6.3</td><td>HIGH</td><td>1 of 2 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>LOG-04</b> AWS Config is recording
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>us-west-2</code> (us-west-2) - No recorder</li>
+</ul>
+<div><b>Fix:</b> Enable AWS Config in this region, recording all resource types.</div>
+<div class="muted">Evidence: <code>evidence/LOG-04__us-east-1.json</code> <code>evidence/LOG-04__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC7.1, CC8.1</td><td>HIGH</td><td>Fails in 1 of 2 regions (us-west-2)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>LOG-05</b> GuardDuty is enabled
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>us-west-2</code> (us-west-2) - No enabled detector</li>
+</ul>
+<div><b>Fix:</b> Enable GuardDuty in this region (ideally org-wide with a delegated admin).</div>
+<div class="muted">Evidence: <code>evidence/LOG-05__us-east-1.json</code> <code>evidence/LOG-05__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.8, CC7.2</td><td>HIGH</td><td>Fails in 1 of 2 regions (us-west-2)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>AVL-02</b> RDS databases are Multi-AZ
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:rds:us-east-1:123456789012:db:reporting-replica</code> (us-east-1) - Single-AZ</li>
+</ul>
+<div><b>Fix:</b> Modify the instance to enable Multi-AZ (dev/test databases can be accepted as a documented exception).</div>
+<div class="muted">Evidence: <code>evidence/AVL-02__us-east-1.json</code> <code>evidence/AVL-02__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>A1.2</td><td>MEDIUM</td><td>1 of 2 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>AVL-03</b> An AWS Backup plan exists
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>us-west-2</code> (us-west-2) - No backup plans</li>
+</ul>
+<div><b>Fix:</b> Create an AWS Backup plan covering production resources in this region.</div>
+<div class="muted">Evidence: <code>evidence/AVL-03__us-east-1.json</code> <code>evidence/AVL-03__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>A1.2</td><td>MEDIUM</td><td>Fails in 1 of 2 regions (us-west-2)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-03</b> S3 buckets reject non-TLS requests
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:s3:::northwind-app-logs</code> (global) - No SecureTransport deny</li>
+</ul>
+<div><b>Fix:</b> Add a Deny statement for &#34;s3:*&#34; with Condition {&#34;Bool&#34;: {&#34;aws:SecureTransport&#34;: &#34;false&#34;}}.</div>
+<div class="muted">Evidence: <code>evidence/DATA-03.json</code> </div>
+</details>
+
+</td>
+<td>CC6.7</td><td>MEDIUM</td><td>1 of 4 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-05</b> EBS encryption by default is on
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>us-west-2</code> (us-west-2) - Off</li>
+</ul>
+<div><b>Fix:</b> Enable EBS encryption by default in this region.</div>
+<div class="muted">Evidence: <code>evidence/DATA-05__us-east-1.json</code> <code>evidence/DATA-05__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1, C1.1</td><td>MEDIUM</td><td>Fails in 1 of 2 regions (us-west-2)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-08</b> Customer-managed KMS keys rotate automatically
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:kms:us-east-1:123456789012:key/c14e29de-6356-4a5e-aafc-4fbd388bbb1f</code> (us-east-1) - Rotation off</li>
+</ul>
+<div><b>Fix:</b> Enable automatic key rotation on the key.</div>
+<div class="muted">Evidence: <code>evidence/DATA-08__us-east-1.json</code> <code>evidence/DATA-08__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1</td><td>MEDIUM</td><td>1 of 2 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>IAM-03</b> Password policy meets minimum strength
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:iam::123456789012:root</code> (global) - minimum length 8 &lt; 14; RequireSymbols is off; reuse prevention 0 &lt; 24</li>
+</ul>
+<div><b>Fix:</b> Set an account password policy: minimum length 14, require upper/lower/number/symbol, prevent reuse of 24.</div>
+<div class="muted">Evidence: <code>evidence/IAM-03.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1</td><td>MEDIUM</td><td>1 of 1 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>LOG-06</b> Security Hub is enabled
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>us-west-2</code> (us-west-2) - Not enabled</li>
+</ul>
+<div><b>Fix:</b> Enable Security Hub with the AWS Foundational Security Best Practices standard.</div>
+<div class="muted">Evidence: <code>evidence/LOG-06__us-east-1.json</code> <code>evidence/LOG-06__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC7.1</td><td>MEDIUM</td><td>1 of 2 resources fail (us-west-2)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>LOG-07</b> Every VPC has flow logs
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>vpc-f1b8fce8c8b7057a1</code> (us-west-2) - No active flow log</li>
+</ul>
+<div><b>Fix:</b> Enable VPC flow logs (at least REJECT traffic) to CloudWatch Logs or S3.</div>
+<div class="muted">Evidence: <code>evidence/LOG-07__us-east-1.json</code> <code>evidence/LOG-07__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC7.2</td><td>MEDIUM</td><td>1 of 2 resources fail (us-west-2)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-04</b> S3 buckets have versioning enabled
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:s3:::northwind-web-assets</code> (global) - Versioning Disabled</li>
+</ul>
+<div><b>Fix:</b> Enable versioning (and a lifecycle rule to expire old versions to control cost).</div>
+<div class="muted">Evidence: <code>evidence/DATA-04.json</code> </div>
+</details>
+
+</td>
+<td>A1.2, C1.1</td><td>LOW</td><td>1 of 4 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>DATA-09</b> Secrets Manager secrets rotate automatically
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/patients-db-tkjfqW</code> (us-east-1) - Rotation off</li>
+</ul>
+<div><b>Fix:</b> Configure a rotation Lambda and schedule for the secret.</div>
+<div class="muted">Evidence: <code>evidence/DATA-09__us-east-1.json</code> <code>evidence/DATA-09__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1</td><td>LOW</td><td>1 of 1 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>IAM-07</b> IAM users get permissions through groups or roles only
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:iam::123456789012:user/ci-deploy-bot</code> (global) - 1 policies attached directly</li>
+</ul>
+<div><b>Fix:</b> Move the user&#39;s policies onto a group or role and detach them from the user.</div>
+<div class="muted">Evidence: <code>evidence/IAM-07.json</code> </div>
+</details>
+
+</td>
+<td>CC6.3</td><td>LOW</td><td>1 of 3 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>LOG-03</b> CloudTrail logs are encrypted with KMS
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>arn:aws:cloudtrail:us-east-1:123456789012:trail/northwind-org-trail</code> (global) - No KMS key</li>
+</ul>
+<div><b>Fix:</b> Configure SSE-KMS on the trail with a dedicated customer-managed key.</div>
+<div class="muted">Evidence: <code>evidence/LOG-03.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1, CC7.2</td><td>LOW</td><td>1 of 1 failing</td>
+</tr>
+
+<tr>
+<td><span class="pill FAIL">FAIL</span></td>
+<td><b>LOG-08</b> Log groups retain logs for at least 365 days
+
+<details><summary>Details &amp; fix</summary>
+
+<ul><li><code>/aws/lambda/report-export</code> (us-east-1) - 30 days</li>
+</ul>
+<div><b>Fix:</b> Set retention to 365+ days (or &#39;never expire&#39;) on each log group.</div>
+<div class="muted">Evidence: <code>evidence/LOG-08__us-east-1.json</code> <code>evidence/LOG-08__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC7.2</td><td>LOW</td><td>1 of 2 resources fail (us-east-1)</td>
+</tr>
+
+<tr>
+<td><span class="pill ERROR">ERROR</span></td>
+<td><b>IAM-09</b> IAM Access Analyzer is enabled
+
+<details><summary>Details &amp; fix</summary>
+<div><code>us-east-1: The AWS simulator used for this sample does not support this API.</code></div><div><code>us-west-2: The AWS simulator used for this sample does not support this API.</code></div>
+<ul>
+</ul>
+<div><b>Fix:</b> Create an account- or organization-level analyzer in this region.</div>
+<div class="muted">Evidence: <code>evidence/IAM-09__us-east-1.json</code> <code>evidence/IAM-09__us-west-2.json</code> </div>
+</details>
+
+</td>
+<td>CC6.1, CC7.1</td><td>MEDIUM</td><td>Could not be evaluated in 2 region(s)</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>DATA-02</b> Every S3 bucket is protected by Block Public Access
+
+</td>
+<td>CC6.1, C1.1</td><td>CRITICAL</td><td>4 of 4 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>IAM-02</b> Root account has no access keys
+
+</td>
+<td>CC6.1</td><td>CRITICAL</td><td>1 of 1 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>LOG-01</b> A multi-region CloudTrail trail is logging
+
+</td>
+<td>CC7.2, CC7.3</td><td>CRITICAL</td><td>1 of 1 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>DATA-01</b> S3 Block Public Access is on at the account level
+
+</td>
+<td>CC6.1, C1.1</td><td>HIGH</td><td>1 of 1 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>IAM-05</b> Access keys are rotated within 90 days
+
+</td>
+<td>CC6.1, CC6.2</td><td>MEDIUM</td><td>1 of 1 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>IAM-06</b> Unused credentials are disabled
+
+</td>
+<td>CC6.2, CC6.3</td><td>MEDIUM</td><td>3 of 3 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>LOG-02</b> CloudTrail log file validation is enabled
+
+</td>
+<td>CC7.2</td><td>MEDIUM</td><td>1 of 1 passing</td>
+</tr>
+
+<tr>
+<td><span class="pill PASS">PASS</span></td>
+<td><b>NET-02</b> Default security groups allow no traffic
+
+</td>
+<td>CC6.6</td><td>LOW</td><td>All 2 resources pass</td>
+</tr>
+
+</tbody></table></div>
+
+<h2>Trust Services Criteria coverage</h2>
+<div class="scroll"><table>
+<thead><tr><th>Criterion</th><th>Description</th><th>Automated</th><th>Manual controls</th><th>Pass / Fail</th></tr></thead>
+<tbody>
+
+<tr><td><b>CC1.1</b></td><td>Commitment to integrity and ethical values</td><td>-</td>
+<td>MC-01</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC1.3</b></td><td>Structures, reporting lines and responsibilities</td><td>-</td>
+<td>MC-02</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC1.4</b></td><td>Commitment to attract and retain competent people</td><td>-</td>
+<td>MC-03</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC2.2</b></td><td>Internal communication of security responsibilities</td><td>-</td>
+<td>MC-04</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC2.3</b></td><td>Communication with external parties</td><td>-</td>
+<td>MC-05</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC3.1</b></td><td>Risk assessment objectives</td><td>-</td>
+<td>MC-06</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC4.1</b></td><td>Ongoing evaluation of controls</td><td>-</td>
+<td>MC-07</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC5.3</b></td><td>Policies and procedures</td><td>-</td>
+<td>MC-08</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC6.1</b></td><td>Logical access security software, infrastructure and architecture</td><td>DATA-01, DATA-02, DATA-05, DATA-06, DATA-08, DATA-09, IAM-01, IAM-02, IAM-03, IAM-04, IAM-05, IAM-09, LOG-03</td>
+<td>-</td><td>4 / 8</td></tr>
+
+<tr><td><b>CC6.2</b></td><td>User registration and authorization</td><td>IAM-05, IAM-06</td>
+<td>MC-09, MC-10</td><td>2 / 0</td></tr>
+
+<tr><td><b>CC6.3</b></td><td>Role-based access and removal</td><td>IAM-06, IAM-07, IAM-08</td>
+<td>MC-11</td><td>1 / 2</td></tr>
+
+<tr><td><b>CC6.4</b></td><td>Physical access restrictions</td><td>-</td>
+<td>MC-12</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC6.5</b></td><td>Disposal of assets</td><td>-</td>
+<td>MC-13</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC6.6</b></td><td>Protection against threats from outside system boundaries</td><td>DATA-07, NET-01, NET-02</td>
+<td>-</td><td>1 / 2</td></tr>
+
+<tr><td><b>CC6.7</b></td><td>Restriction of data transmission and movement</td><td>DATA-03</td>
+<td>-</td><td>0 / 1</td></tr>
+
+<tr><td><b>CC6.8</b></td><td>Prevention / detection of unauthorized or malicious software</td><td>LOG-05</td>
+<td>MC-14</td><td>0 / 1</td></tr>
+
+<tr><td><b>CC7.1</b></td><td>Detection of configuration changes and vulnerabilities</td><td>IAM-09, LOG-04, LOG-06</td>
+<td>MC-15</td><td>0 / 2</td></tr>
+
+<tr><td><b>CC7.2</b></td><td>Monitoring of system components for anomalies</td><td>LOG-01, LOG-02, LOG-03, LOG-05, LOG-07, LOG-08</td>
+<td>-</td><td>2 / 4</td></tr>
+
+<tr><td><b>CC7.3</b></td><td>Evaluation of security events</td><td>LOG-01</td>
+<td>MC-16</td><td>1 / 0</td></tr>
+
+<tr><td><b>CC7.4</b></td><td>Incident response</td><td>-</td>
+<td>MC-17</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC8.1</b></td><td>Change management</td><td>LOG-04</td>
+<td>MC-18</td><td>0 / 1</td></tr>
+
+<tr><td><b>CC9.1</b></td><td>Business disruption risk mitigation</td><td>-</td>
+<td>MC-19</td><td>0 / 0</td></tr>
+
+<tr><td><b>CC9.2</b></td><td>Vendor and business partner risk</td><td>-</td>
+<td>MC-20</td><td>0 / 0</td></tr>
+
+<tr><td><b>A1.2</b></td><td>Backup and recovery infrastructure</td><td>AVL-01, AVL-02, AVL-03, DATA-04</td>
+<td>-</td><td>0 / 4</td></tr>
+
+<tr><td><b>A1.3</b></td><td>Recovery plan testing</td><td>-</td>
+<td>MC-21</td><td>0 / 0</td></tr>
+
+<tr><td><b>C1.1</b></td><td>Identification and protection of confidential information</td><td>DATA-01, DATA-02, DATA-04, DATA-05, DATA-06</td>
+<td>-</td><td>2 / 3</td></tr>
+
+<tr><td><b>C1.2</b></td><td>Disposal of confidential information</td><td>-</td>
+<td>MC-22</td><td>0 / 0</td></tr>
+
+</tbody></table></div>
+
+<h2>Manual controls to evidence</h2>
+<div class="scroll"><table>
+<thead><tr><th>ID</th><th>Criterion</th><th>Control</th><th>Evidence to collect</th><th>Frequency</th></tr></thead>
+<tbody>
+
+<tr><td>MC-01</td><td>CC1.1</td><td>Employees acknowledge a code of conduct</td><td>Signed acknowledgements for every employee in the period</td><td>At hire, annually</td></tr>
+
+<tr><td>MC-02</td><td>CC1.3</td><td>Security roles and responsibilities are assigned</td><td>Org chart; named security owner; job descriptions</td><td>Annually</td></tr>
+
+<tr><td>MC-03</td><td>CC1.4</td><td>Background checks are performed for new hires</td><td>Background check completion records for a sample of hires</td><td>At hire</td></tr>
+
+<tr><td>MC-04</td><td>CC2.2</td><td>Security awareness training is completed</td><td>Training completion report for all staff</td><td>At hire, annually</td></tr>
+
+<tr><td>MC-05</td><td>CC2.3</td><td>Security commitments are communicated to customers</td><td>Public security page, terms of service, DPA</td><td>Ongoing</td></tr>
+
+<tr><td>MC-06</td><td>CC3.1</td><td>A formal risk assessment is performed</td><td>Risk register with likelihood, impact, owner and treatment</td><td>Annually</td></tr>
+
+<tr><td>MC-07</td><td>CC4.1</td><td>Control effectiveness is reviewed by management</td><td>Meeting notes or sign-off on this workbook&#39;s results</td><td>Quarterly</td></tr>
+
+<tr><td>MC-08</td><td>CC5.3</td><td>Information security policies are approved and published</td><td>Approved policy set (access, change, IR, data retention, vendor) with version history</td><td>Annually</td></tr>
+
+<tr><td>MC-09</td><td>CC6.2</td><td>Access is provisioned through an approved request</td><td>Access request tickets with approver for a sample of grants</td><td>Per request</td></tr>
+
+<tr><td>MC-10</td><td>CC6.2</td><td>User access reviews are performed</td><td>Reviewed list of AWS, IdP and production-system users with sign-off</td><td>Quarterly</td></tr>
+
+<tr><td>MC-11</td><td>CC6.3</td><td>Access is removed promptly at termination</td><td>Offboarding tickets showing removal within 24-72 hours</td><td>Per termination</td></tr>
+
+<tr><td>MC-12</td><td>CC6.4</td><td>Physical security of data centers</td><td>Inherited from AWS: download the AWS SOC 2 report from AWS Artifact</td><td>Annually</td></tr>
+
+<tr><td>MC-13</td><td>CC6.5</td><td>Company devices are wiped before disposal or reuse</td><td>Asset register and disposal certificates</td><td>Per device</td></tr>
+
+<tr><td>MC-14</td><td>CC6.8</td><td>Endpoints run anti-malware and disk encryption</td><td>MDM / EDR compliance report for all laptops</td><td>Monthly</td></tr>
+
+<tr><td>MC-15</td><td>CC7.1</td><td>Vulnerability scanning and patching</td><td>Scan reports and tickets showing remediation within SLA</td><td>Monthly</td></tr>
+
+<tr><td>MC-16</td><td>CC7.3</td><td>An incident response plan exists</td><td>Approved IR plan with roles, severity levels and contacts</td><td>Annually</td></tr>
+
+<tr><td>MC-17</td><td>CC7.4</td><td>Incident response is tested</td><td>Tabletop exercise notes and follow-up actions</td><td>Annually</td></tr>
+
+<tr><td>MC-18</td><td>CC8.1</td><td>Code changes are peer-reviewed before production</td><td>Branch protection settings and a sample of merged PRs with approvals</td><td>Per change</td></tr>
+
+<tr><td>MC-19</td><td>CC9.1</td><td>A business continuity plan exists</td><td>Approved BCP with RTO/RPO targets</td><td>Annually</td></tr>
+
+<tr><td>MC-20</td><td>CC9.2</td><td>Vendors are assessed for security risk</td><td>Vendor inventory with SOC reports or questionnaires for critical vendors</td><td>Annually</td></tr>
+
+<tr><td>MC-21</td><td>A1.3</td><td>Backup restores are tested</td><td>Restore test record showing data recovered within RTO</td><td>Annually</td></tr>
+
+<tr><td>MC-22</td><td>C1.2</td><td>Confidential data is deleted per retention policy</td><td>Retention schedule and deletion logs / tickets</td><td>Per schedule</td></tr>
+
+</tbody></table></div>
+
+<p class="note">Automated technical evidence only. Criteria mappings are guidance; your auditor determines control sufficiency. Most SOC 2 controls are procedural - see manual_controls. Raw API responses for every check are in the <code>evidence/</code> folder;
+<code>manifest.json</code> lists a SHA-256 hash for each file. Generated by soc2kit 2.1.0
+as <code>arn:aws:iam::123456789012:role/soc2kit-readonly (simulated)</code>.</p>
+</main></body></html>

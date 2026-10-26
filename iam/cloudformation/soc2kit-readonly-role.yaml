@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  soc2kit read-only scan role. Grants only the 35 read actions soc2kit needs (no data reads, no writes).
+  soc2kit read-only scan role. Grants only the 36 read actions soc2kit needs (no data reads, no writes).
   The trusted principal must present the External ID to assume it. Delete the stack to revoke access.
 
 Parameters:
@@ -53,6 +53,7 @@ Resources:
                   - config:DescribeConfigurationRecorderStatus
                   - config:DescribeConfigurationRecorders
                   - ec2:DescribeFlowLogs
+                  - ec2:DescribeNetworkInterfaces
                   - ec2:DescribeRegions
                   - ec2:DescribeSecurityGroups
                   - ec2:DescribeVpcs

@@ -65,8 +65,9 @@ def main(argv: list[str] | None = None) -> int:
     print(file=sys.stderr)
     summary = write_pack(result, args.out, make_zip=not args.no_zip)
     c = summary["counts"]
-    print(f"Account {summary['account_id']}: score {summary['score']}% "
-          f"(pass {c['PASS']}, fail {c['FAIL']}, error {c['ERROR']}, n/a {c['N/A']})")
+    print(f"Account {summary['account_id']}: score {summary['score']}% of controls passing "
+          f"({c['PASS']} pass, {c['FAIL']} fail, {c['ERROR']} could not be evaluated, {c['N/A']} not applicable "
+          f"across {len(summary['regions'])} regions)")
     print(f"Evidence pack written to {args.out}/ (open report.html)")
     if c["ERROR"]:
         print("Some checks could not run - see the ERROR rows. Usually a missing permission.", file=sys.stderr)
