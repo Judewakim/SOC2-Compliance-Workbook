@@ -29,4 +29,4 @@ aws s3 rm "s3://$BUCKET/judewakim/_staging/soc2-evidence-kit/" --recursive
 
 Security headers (frame blocking, HSTS, nosniff) come from the distribution's managed SecurityHeadersPolicy.
 
-`preview.png` (2400×1060) is the image for the portfolio card.
+`preview.png` (2400×1640) is the image for the portfolio card.
