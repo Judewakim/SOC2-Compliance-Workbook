@@ -10,7 +10,8 @@
 
   var MAX_BYTES = 15 * 1024 * 1024;
   var STATUSES = ["PASS", "FAIL", "ERROR", "N/A"];
-  var STATUS_LABEL = { PASS: "Passes", FAIL: "Fails", ERROR: "Couldn't run", "N/A": "N/A" };
+  var MARK = { PASS: "✓", FAIL: "✗", ERROR: "?", "N/A": "–" };
+  var MARK_LABEL = { PASS: "Passed", FAIL: "Failed", ERROR: "Not tested", "N/A": "Nothing to test" };
   var SEVERITY_RANK = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -104,85 +105,89 @@
     };
   }
 
-  // -------------------------------------------------------------- board
+  // -------------------------------------------------------------- sheet
   function resultsFor(report, criterion) {
     return report.results
       .filter(function (r) { return r.criteria.indexOf(criterion) >= 0; })
       .sort(function (a, b) { return (a.check_id + a.region).localeCompare(b.check_id + b.region); });
   }
 
-  function buildBoard(report) {
+  function markClass(status) { return "m-" + (status === "N/A" ? "NA" : status); }
+
+  // Builds one printout line per criterion that has automated results. Returns the rows in print order.
+  function buildSheet(report, waiting) {
     var board = $("board");
     board.textContent = "";
-    var pips = [];
+    var rows = [];
     var manualOnly = 0;
     report.criteria.forEach(function (c) {
       var rs = resultsFor(report, c.criterion);
-      var right;
-      if (!rs.length) { manualOnly += 1; return; }  // procedural-only criteria live in the coverage table
-      if (rs.length) {
-        right = el("span", { className: "pips", "aria-hidden": "true" });
-        rs.forEach(function (r) {
-          var p = el("i", { className: "pip", "data-s": r.status });
-          right.appendChild(p);
-          pips.push({ pip: p, key: r.check_id + "|" + r.region });
-        });
-      } else {
-        right = el("span", { className: "manual-only", text: plural(c.manual_controls.length, "manual control") });
-      }
-      board.appendChild(el("li", { className: "crit" }, [
-        el("span", { className: "crit-id", text: c.criterion }),
-        el("span", { className: "crit-name", text: c.name, title: c.name }),
-        right
-      ]));
+      if (!rs.length) { manualOnly += 1; return; }
+      var marks = el("span", { className: "marks" });
+      rs.forEach(function (r) { marks.appendChild(el("span", { className: markClass(r.status), text: MARK[r.status] })); });
+      var passed = rs.filter(function (r) { return r.status === "PASS"; }).length;
+      var tested = rs.filter(function (r) { return r.status === "PASS" || r.status === "FAIL"; }).length;
+      var row = el("li", { className: "sheet-row" + (waiting ? " waiting" : ""),
+                           "aria-label": c.criterion + " " + c.name + ": " + passed + " of " + tested + " passed" }, [
+        el("span", { className: "ref", text: c.criterion }),
+        el("span", { className: "desc", text: c.name.toUpperCase() }),
+        marks,
+        el("span", { className: "tally", text: passed + "/" + tested })
+      ]);
+      board.appendChild(row);
+      rows.push(row);
     });
-    if (manualOnly) board.appendChild(el("li", { className: "crit-more", text: "+ " + manualOnly + (manualOnly === 1 ? " more criterion" : " more criteria") + " covered by manual controls in the workbook" }));
-    $("board-account").textContent = report.sample ? "northwind-health" : "account " + report.account_id;
-    return pips;
+    if (manualOnly) {
+      var more = el("li", { className: "sheet-row" + (waiting ? " waiting" : "") }, [
+        el("span", { className: "ref", text: "..." }),
+        el("span", { className: "desc", text: manualOnly + " MORE CRITERIA ARE PROCEDURAL, SEE WORKBOOK" })
+      ]);
+      board.appendChild(more);
+      rows.push(more);
+    }
+    var who = report.sample ? (report.sample.company || "SAMPLE").toUpperCase() : "YOUR REPORT";
+    $("sheet-title").textContent = "SOC2KIT EVIDENCE RUN   " + who + "   ACCOUNT " + report.account_id;
+    return rows;
   }
 
-  function animateBoard(report, done) {
+  function finalLine(report) {
+    return "END OF RUN   " + report.counts.FAIL + " FAILED   " + report.counts.PASS + " PASSED   " +
+      report.counts.ERROR + " NOT TESTED   SCORE " + report.score + "%";
+  }
+
+  function printSheet(report, done) {
     if (animation) clearInterval(animation);
-    var pips = buildBoard(report);
-    // Light every square belonging to the same check result together, in check order.
-    var keys = [];
-    pips.forEach(function (p) { if (keys.indexOf(p.key) < 0) keys.push(p.key); });
-    keys.sort();
+    var rows = buildSheet(report, !reduceMotion);
     var progress = $("board-progress");
-    if (reduceMotion) {
-      pips.forEach(function (p) { p.pip.classList.add("on"); });
-      progress.textContent = plural(keys.length, "result");
-      done();
-      return;
-    }
+    if (reduceMotion) { progress.textContent = finalLine(report); done(); return; }
     var i = 0;
+    progress.textContent = "PRINTING...";
     animation = setInterval(function () {
-      var key = keys[i];
-      pips.forEach(function (p) { if (p.key === key) p.pip.classList.add("on"); });
+      rows[i].classList.remove("waiting");
+      rows[i].classList.add("printed");
       i += 1;
-      progress.textContent = "Checking " + i + " of " + keys.length;
-      if (i >= keys.length) {
+      if (i >= rows.length) {
         clearInterval(animation);
         animation = null;
-        progress.textContent = report.counts.FAIL + " failing · " + report.counts.PASS + " passing";
-        done();
+        progress.textContent = finalLine(report);
+        setTimeout(done, 350);
       }
-    }, 28);
+    }, 140);
   }
 
   // ------------------------------------------------------------- report
-  function renderStats(report) {
-    var stats = $("stats");
-    stats.textContent = "";
-    [["score", "Automated score", report.score + "%"],
-     ["FAIL", "Failing", report.counts.FAIL],
-     ["PASS", "Passing", report.counts.PASS],
-     ["ERROR", "Couldn't evaluate", report.counts.ERROR],
-     ["N/A", "Not applicable", report.counts["N/A"]]].forEach(function (s) {
-      stats.appendChild(el("div", { className: "stat", "data-k": s[0] }, [
-        el("dt", { text: s[1] }), el("dd", { text: String(s[2]) })
-      ]));
-    });
+  function renderVerdict(report) {
+    var v = $("verdict");
+    v.textContent = "";
+    function n(k, text) { v.appendChild(el("span", { className: "n-" + k, text: text })); }
+    n("FAIL", plural(report.counts.FAIL, "check") + " failed");
+    v.appendChild(document.createTextNode(", "));
+    n("PASS", report.counts.PASS + " passed");
+    if (report.counts.ERROR) {
+      v.appendChild(document.createTextNode(" and "));
+      n("ERROR", report.counts.ERROR + " couldn't be tested");
+    }
+    v.appendChild(document.createTextNode(". That's " + report.score + "% of the controls the scanner could test."));
   }
 
   function sortResults(a, b) {
@@ -193,14 +198,13 @@
   }
 
   function resultItem(r) {
-    var meta = el("p", { className: "result-meta" });
-    [r.check_id, r.severity.charAt(0) + r.severity.slice(1).toLowerCase(), r.criteria.join(", "), r.region].forEach(function (part, i) {
-      if (i) meta.appendChild(el("span", { className: "sep", text: "·", "aria-hidden": "true" }));
-      meta.appendChild(document.createTextNode(part));
-    });
-
+    var sev = r.severity.charAt(0) + r.severity.slice(1).toLowerCase();
+    var ref = el("p", { className: "result-ref" }, [
+      el("b", { text: r.check_id }),
+      document.createTextNode("  " + sev + " severity, " + r.criteria.join(" and ") + ", " + r.region)
+    ]);
     var body = el("div", { className: "result-body" }, [
-      el("h3", { text: r.title }), meta, el("p", { className: "result-summary", text: r.summary })
+      el("h3", { text: r.title }), ref, el("p", { className: "result-summary", text: r.summary })
     ]);
 
     if (r.status === "FAIL" || r.status === "ERROR") {
@@ -209,43 +213,38 @@
       if (failing.length) {
         var ul = el("ul", { className: "res-list" });
         failing.slice(0, 50).forEach(function (f) {
-          ul.appendChild(el("li", null, [el("code", { text: f.resource }), document.createTextNode(" — " + f.detail)]));
+          ul.appendChild(el("li", null, [el("code", { text: f.resource }), document.createTextNode(": " + f.detail)]));
         });
-        if (failing.length > 50) ul.appendChild(el("li", { text: "and " + (failing.length - 50) + " more in the workbook" }));
-        inner.appendChild(el("div", null, [el("h4", { text: "Resources" }), ul]));
+        if (failing.length > 50) ul.appendChild(el("li", { text: (failing.length - 50) + " more are listed in the workbook." }));
+        inner.appendChild(el("div", null, [el("h4", { text: "Affected resources" }), ul]));
       }
-      if (r.error) inner.appendChild(el("div", null, [el("h4", { text: "Why it couldn't run" }), el("p", { text: r.error })]));
-      inner.appendChild(el("div", null, [el("h4", { text: "How to fix" }), el("p", { text: r.remediation })]));
-      if (r.evidence_file) inner.appendChild(el("div", null, [el("h4", { text: "Evidence" }), el("p", null, [el("code", { text: r.evidence_file })])]));
-      body.appendChild(el("details", { className: "more" }, [el("summary", { text: r.status === "FAIL" ? "Resources and fix" : "Details" }), inner]));
+      if (r.error) inner.appendChild(el("div", null, [el("h4", { text: "Why it wasn't tested" }), el("p", { text: r.error })]));
+      inner.appendChild(el("div", null, [el("h4", { text: "How to fix it" }), el("p", { text: r.remediation })]));
+      if (r.evidence_file) inner.appendChild(el("div", null, [el("h4", { text: "Evidence file" }), el("p", null, [el("code", { text: r.evidence_file })])]));
+      body.appendChild(el("details", { className: "more" }, [el("summary", { text: r.status === "FAIL" ? "Show resources and fix" : "Show details" }), inner]));
     }
 
     return el("li", { className: "result", "data-s": r.status }, [
-      el("span", { className: "tag", text: STATUS_LABEL[r.status] }), body
+      el("span", { className: "mark " + markClass(r.status), title: MARK_LABEL[r.status], "aria-label": MARK_LABEL[r.status], text: MARK[r.status] }),
+      body
     ]);
   }
 
   function renderResults() {
     var ul = $("results");
     ul.textContent = "";
-    var shown = current.results.filter(function (r) {
-      return filter === "ALL" || r.status === filter;
-    }).sort(sortResults);
-    if (!shown.length) {
-      ul.appendChild(el("li", { className: "empty", text: "Nothing in this view." }));
-      return;
-    }
+    var shown = current.results.filter(function (r) { return filter === "ALL" || r.status === filter; }).sort(sortResults);
+    if (!shown.length) { ul.appendChild(el("li", { className: "empty", text: "No results in this tab." })); return; }
     shown.forEach(function (r) { ul.appendChild(resultItem(r)); });
   }
 
-  function renderFilters() {
-    document.querySelectorAll(".chip").forEach(function (chip) {
-      var k = chip.getAttribute("data-filter");
-      var n = k === "ALL" ? current.results.length : current.counts[k];
-      var label = chip.firstChild.nodeType === 3 ? chip.firstChild.nodeValue : chip.textContent;
-      chip.textContent = label;
-      chip.appendChild(el("span", { className: "n", text: String(n) }));
-      chip.setAttribute("aria-pressed", String(k === filter));
+  var TAB_LABEL = { FAIL: "Failed", ERROR: "Not tested", PASS: "Passed", ALL: "All" };
+  function renderTabs() {
+    document.querySelectorAll(".tab").forEach(function (tab) {
+      var k = tab.getAttribute("data-filter");
+      tab.textContent = TAB_LABEL[k];
+      tab.appendChild(el("span", { className: "n", text: String(k === "ALL" ? current.results.length : current.counts[k]) }));
+      tab.setAttribute("aria-pressed", String(k === filter));
     });
   }
 
@@ -257,13 +256,12 @@
       var f = rs.filter(function (r) { return r.status === "FAIL"; }).length;
       var p = rs.filter(function (r) { return r.status === "PASS"; }).length;
       var auto = rs.length
-        ? el("td", { className: "counts" }, [
-            el("b", { className: "f", text: f + " failing" }), document.createTextNode(" · "),
-            el("b", { className: "p", text: p + " passing" })])
-        : el("td", { text: "—" });
+        ? el("td", { className: "counts" }, [el("span", { className: "f", text: f + " failed" }),
+            document.createTextNode(", "), el("span", { className: "p", text: p + " passed" })])
+        : el("td", { text: "None, procedural only" });
       body.appendChild(el("tr", null, [
         el("th", { scope: "row", text: c.criterion }), el("td", { text: c.name }), auto,
-        el("td", { text: c.manual_controls.join(", ") || "—" })
+        el("td", { text: c.manual_controls.join(", ") || "None" })
       ]));
     });
   }
@@ -272,14 +270,14 @@
     current = report;
     filter = report.counts.FAIL ? "FAIL" : "ALL";
     $("report-source").textContent = sourceLabel;
-    $("report-meta").textContent = "AWS account " + report.account_id + " · scanned " + formatDate(report.finished_at) +
-      " · " + plural(report.regions.length, "region") + " · " + plural(report.results.length, "check result");
+    renderVerdict(report);
+    $("report-meta").textContent = "AWS account " + report.account_id + ", scanned " + formatDate(report.finished_at) +
+      " across " + plural(report.regions.length, "region") + " (" + report.regions.join(", ") + ").";
     $("downloads").hidden = !report.sample;
-    $("report-note").textContent = "Automated checks cover the technical part of SOC 2. " +
+    $("report-note").textContent = "The scanner covers the technical part of SOC 2. " +
       (report.manual_count ? "The workbook lists " + report.manual_count + " procedural controls that still need evidence. " : "") +
-      "Criteria mappings are guidance; your auditor decides what is sufficient.";
-    renderStats(report);
-    renderFilters();
+      "Criteria mappings are guidance; your auditor decides what's sufficient.";
+    renderTabs();
     renderResults();
     renderCriteria(report);
     $("report").hidden = false;
@@ -288,24 +286,24 @@
   // ------------------------------------------------------------- sample
   var sample = null;
   try { sample = window.SOC2KIT_SAMPLE ? normalise(window.SOC2KIT_SAMPLE) : null; } catch (e) { sample = null; }
-  if (sample) buildBoard(sample);
+  if (sample) { buildSheet(sample, false); $("board-progress").textContent = finalLine(sample); }
 
   $("run-sample").addEventListener("click", function () {
     if (!sample) return;
     var btn = this;
     btn.disabled = true;
-    animateBoard(sample, function () {
+    printSheet(sample, function () {
       btn.disabled = false;
-      btn.textContent = "Replay the sample";
-      render(sample, "Sample · " + (sample.sample ? sample.sample.company : "fictional company"));
+      btn.textContent = "Print it again";
+      render(sample, "Sample scan of " + (sample.sample ? sample.sample.company : "a fictional company") + ".");
       $("report").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     });
   });
 
-  document.querySelectorAll(".chip").forEach(function (chip) {
-    chip.addEventListener("click", function () {
-      filter = chip.getAttribute("data-filter");
-      renderFilters();
+  document.querySelectorAll(".tab").forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      filter = tab.getAttribute("data-filter");
+      renderTabs();
       renderResults();
     });
   });
@@ -316,21 +314,21 @@
 
   function openFile(file) {
     if (!file) return;
-    if (file.size > MAX_BYTES) { setStatus("That file is over 15 MB. Open soc2-evidence/report.json.", "err"); return; }
+    if (file.size > MAX_BYTES) { setStatus("That file is over 15 MB. Choose soc2-evidence/report.json.", "err"); return; }
     var reader = new FileReader();
-    reader.onerror = function () { setStatus("The file couldn't be read.", "err"); };
+    reader.onerror = function () { setStatus("The file couldn't be read. Try choosing it again.", "err"); };
     reader.onload = function () {
       var report;
       try {
         report = normalise(JSON.parse(String(reader.result)));
       } catch (e) {
-        setStatus(e instanceof SyntaxError ? "That file isn't valid JSON." : e.message, "err");
+        setStatus(e instanceof SyntaxError ? "That file isn't valid JSON. Choose soc2-evidence/report.json." : e.message, "err");
         return;
       }
       setStatus("Opened " + str(file.name, 80) + ". It stays in this browser tab.", "ok");
-      buildBoard(report).forEach(function (p) { p.pip.classList.add("on"); });
-      $("board-progress").textContent = report.counts.FAIL + " failing · " + report.counts.PASS + " passing";
-      render(report, "Your report · read locally, not uploaded");
+      buildSheet(report, false);
+      $("board-progress").textContent = finalLine(report);
+      render(report, "Your scan, read in this browser and not uploaded.");
       $("report").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
     };
     reader.readAsText(file);
@@ -359,7 +357,7 @@
       if (!navigator.clipboard) return;
       navigator.clipboard.writeText(text).then(function () {
         btn.textContent = "Copied";
-        setTimeout(function () { btn.textContent = "Copy"; }, 1600);
+        setTimeout(function () { btn.textContent = "Copy commands"; }, 1600);
       });
     });
   });

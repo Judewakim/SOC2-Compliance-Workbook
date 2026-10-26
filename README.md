@@ -70,8 +70,8 @@ flowchart LR
 Fastest path: open [AWS CloudShell](https://console.aws.amazon.com/cloudshell/home) in the account and run
 
 ```bash
-pip3 install --user git+https://github.com/Judewakim/SOC2-Compliance-Workbook.git
-~/.local/bin/soc2kit scan --out soc2-evidence
+python3 -m venv ~/soc2kit && ~/soc2kit/bin/pip install -q git+https://github.com/Judewakim/SOC2-Compliance-Workbook.git
+~/soc2kit/bin/soc2kit scan --out soc2-evidence
 ```
 
 then download `soc2-evidence/` with **Actions → Download file**. Python 3.9+ is supported, which matches CloudShell.
