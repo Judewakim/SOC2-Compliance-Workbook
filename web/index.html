@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOC 2 Evidence Kit — Jude Wakim</title>
+<meta name="description" content="SOC 2 Evidence Kit scans an AWS account with a read-only role and produces auditor-ready evidence mapped to the Trust Services Criteria. View a sample report or open your own.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <a class="brand" href="./" aria-label="SOC 2 Evidence Kit home">
+    <img src="logo.svg" alt="" width="34" height="34">
+    <span>SOC 2 Evidence Kit</span>
+  </a>
+  <nav aria-label="Project links">
+    <a href="https://wakimworks.com/judewakim/">Portfolio</a>
+    <a href="https://github.com/Judewakim/SOC2-Compliance-Workbook">GitHub</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero" aria-labelledby="title">
+    <div class="hero-text">
+      <h1 id="title">Hand your auditor evidence, not screenshots.</h1>
+      <p class="lede">The SOC 2 Evidence Kit checks an AWS account against 31 controls, maps every result to the Trust Services Criteria, and packages the raw proof behind each one so an auditor can verify it.</p>
+      <div class="hero-actions">
+        <button class="btn primary" id="run-sample" type="button">View the sample report</button>
+        <a class="btn ghost" href="#run">Check your own account</a>
+      </div>
+      <p class="fine">The sample is a fictional company. Everything on this page runs in your browser; there is no server behind it.</p>
+    </div>
+
+    <figure class="board-card" aria-labelledby="board-caption">
+      <div class="board-head">
+        <span id="board-account">northwind-health</span>
+        <span id="board-progress" aria-live="polite">Ready</span>
+      </div>
+      <ol class="board" id="board"></ol>
+      <figcaption id="board-caption" class="legend">
+        <span class="legend-text">Each row is a SOC 2 criterion. Each square is one automated check result behind it.</span>
+        <span class="keys">
+          <span class="key"><i class="dot" data-k="FAIL"></i>Fails</span>
+          <span class="key"><i class="dot" data-k="ERROR"></i>Couldn't evaluate</span>
+          <span class="key"><i class="dot" data-k="PASS"></i>Passes</span>
+          <span class="key"><i class="dot" data-k="NA"></i>Nothing in scope</span>
+        </span>
+      </figcaption>
+    </figure>
+  </section>
+
+  <section class="report" id="report" aria-labelledby="report-title" hidden>
+    <div class="report-head">
+      <div>
+        <p class="eyebrow" id="report-source"></p>
+        <h2 id="report-title">SOC 2 evidence report</h2>
+        <p class="meta" id="report-meta"></p>
+      </div>
+      <div class="downloads" id="downloads" hidden>
+        <a class="btn ghost small" href="sample/report.html" target="_blank" rel="noopener">Full HTML report</a>
+        <a class="btn ghost small" href="sample/workbook.xlsx" download>Workbook (.xlsx)</a>
+        <a class="btn primary small" href="sample/soc2-evidence-sample.zip" download>Evidence pack (.zip)</a>
+      </div>
+    </div>
+
+    <dl class="stats" id="stats"></dl>
+
+    <div class="filters" role="group" aria-label="Filter results">
+      <button type="button" class="chip" data-filter="FAIL" aria-pressed="true">Failing</button>
+      <button type="button" class="chip" data-filter="ERROR" aria-pressed="false">Couldn't evaluate</button>
+      <button type="button" class="chip" data-filter="PASS" aria-pressed="false">Passing</button>
+      <button type="button" class="chip" data-filter="ALL" aria-pressed="false">All</button>
+    </div>
+    <ul class="results" id="results"></ul>
+
+    <details class="coverage">
+      <summary>Coverage by Trust Services Criterion</summary>
+      <div class="table-wrap">
+        <table class="criteria">
+          <thead><tr><th scope="col">Criterion</th><th scope="col">What it covers</th><th scope="col">Automated</th><th scope="col">Manual controls</th></tr></thead>
+          <tbody id="criteria-body"></tbody>
+        </table>
+      </div>
+    </details>
+    <p class="fine" id="report-note"></p>
+  </section>
+
+  <section class="run" id="run" aria-labelledby="run-title">
+    <div class="section-intro">
+      <h2 id="run-title">Check your own account</h2>
+      <p>Run the open-source scanner in AWS CloudShell, where you're already signed in, then open the result here. It takes about five minutes and nothing is installed on your computer.</p>
+    </div>
+
+    <ol class="steps">
+      <li class="step">
+        <div class="step-body">
+          <h3>Open AWS CloudShell</h3>
+          <p>Sign in to the AWS account you want to check, then open CloudShell. Your user needs read access to the services checked; <code>SecurityAudit</code> or <code>ReadOnlyAccess</code> covers it.</p>
+          <a class="btn ghost" href="https://console.aws.amazon.com/cloudshell/home" target="_blank" rel="noopener noreferrer">Open CloudShell</a>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-body">
+          <h3>Run the scan</h3>
+          <p>Paste these two commands. The scan only reads settings and takes two to four minutes across all regions.</p>
+          <div class="code">
+            <pre id="cmd"><code>pip3 install --user git+https://github.com/Judewakim/SOC2-Compliance-Workbook.git
+~/.local/bin/soc2kit scan --out soc2-evidence</code></pre>
+            <button class="btn ghost small copy" type="button" data-copy="cmd">Copy</button>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-body">
+          <h3>Download the results</h3>
+          <p>In CloudShell choose <b>Actions</b>, then <b>Download file</b>, and enter <code>soc2-evidence/report.json</code>. The full evidence pack for your auditor is the <code>.zip</code> in the same folder.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-body">
+          <h3>Open it here</h3>
+          <label class="drop" id="drop" for="file">
+            <input type="file" id="file" accept=".json,application/json">
+            <span class="drop-title">Drop <code>report.json</code> here, or choose the file</span>
+            <span class="fine">Your browser reads the file. It is never uploaded; this page can't make network requests.</span>
+          </label>
+          <p class="status" id="file-status" role="status"></p>
+        </div>
+      </li>
+    </ol>
+    <p class="fine run-alt">Running it on a schedule or from another account? Use the <a href="https://github.com/Judewakim/SOC2-Compliance-Workbook/blob/main/iam/cloudformation/soc2kit-readonly-role.yaml">read-only role template</a> and <code>--role-arn</code>, as described in the <a href="https://github.com/Judewakim/SOC2-Compliance-Workbook#deploying-the-read-only-role">README</a>.</p>
+  </section>
+
+  <section class="pack" aria-labelledby="pack-title">
+    <div class="section-intro">
+      <h2 id="pack-title">What's in the evidence pack</h2>
+      <p>Auditors test evidence, not dashboards. Every pass and fail comes with the API response it was based on, a timestamp, and a hash that shows nobody edited it afterwards.</p>
+    </div>
+    <ul class="files">
+      <li><code>report.html</code><p>Readable report: score, every failure with the resource and the fix, and coverage by criterion.</p></li>
+      <li><code>workbook.xlsx</code><p>The SOC 2 workbook. Automated results plus 22 procedural controls with owner, status and evidence columns.</p></li>
+      <li><code>evidence/*.json</code><p>The raw AWS API responses behind each check, per region, with capture times.</p></li>
+      <li><code>manifest.json</code><p>A SHA-256 hash of every file, so the pack can be shown to be unaltered.</p></li>
+      <li><code>report.json</code><p>Machine-readable results for a compliance platform, a ticketing system, or this page.</p></li>
+    </ul>
+  </section>
+
+  <section class="built" aria-labelledby="built-title">
+    <div class="section-intro">
+      <h2 id="built-title">How it works</h2>
+    </div>
+
+    <figure class="arch" aria-labelledby="arch-caption">
+      <svg viewBox="0 0 900 230" role="img" aria-labelledby="arch-title arch-desc">
+        <title id="arch-title">SOC 2 Evidence Kit architecture</title>
+        <desc id="arch-desc">soc2kit assumes a read-only role in the AWS account with STS and an External ID, runs 31 checks across every enabled region, captures each API response, and writes an evidence pack for the auditor.</desc>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="arrowhead"/></marker>
+        </defs>
+        <g class="box"><rect x="10" y="70" width="170" height="90" rx="10"/><text x="95" y="105">soc2kit</text><text x="95" y="128" class="sub">laptop, CloudShell or CI</text></g>
+        <g class="zone"><rect x="250" y="20" width="300" height="190" rx="14"/><text x="400" y="45" class="zone-label">Your AWS account</text></g>
+        <g class="box"><rect x="275" y="65" width="250" height="52" rx="8"/><text x="400" y="88">Read-only role</text><text x="400" y="106" class="sub">35 read actions · External ID</text></g>
+        <g class="box"><rect x="275" y="140" width="250" height="52" rx="8"/><text x="400" y="163">IAM · CloudTrail · Config · GuardDuty</text><text x="400" y="181" class="sub">S3 · EC2 · RDS · KMS · Backup · Security Hub</text></g>
+        <g class="box accent"><rect x="620" y="70" width="270" height="90" rx="10"/><text x="755" y="100">Evidence pack</text><text x="755" y="122" class="sub">report · workbook · raw evidence</text><text x="755" y="140" class="sub">SHA-256 manifest</text></g>
+        <path class="flow" d="M180 100 H272" marker-end="url(#arrow)"/>
+        <text x="226" y="92" class="flow-label">AssumeRole</text>
+        <path class="flow" d="M400 117 V137" marker-end="url(#arrow)"/>
+        <path class="flow" d="M180 135 C 220 135, 220 166, 272 166" marker-end="url(#arrow)"/>
+        <path class="flow" d="M528 166 C 575 166, 575 120, 617 120" marker-end="url(#arrow)"/>
+        <text x="572" y="190" class="flow-label">every response</text>
+      </svg>
+      <figcaption id="arch-caption" class="fine">One run, one account. The scanner never writes to your account and never reads file contents, secret values or log data.</figcaption>
+    </figure>
+
+    <div class="built-grid">
+      <div>
+        <h3>Evidence, not opinions</h3>
+        <p>Every check has an explicit pass rule. If a check can't run, it says so instead of passing. If there's nothing to check, it's marked not applicable rather than compliant.</p>
+      </div>
+      <div>
+        <h3>Read-only by design</h3>
+        <p>The role is generated from the checks themselves: 35 read actions, no data reads, no writes. Tests fail the build if the policy drifts or a write permission appears.</p>
+      </div>
+      <div>
+        <h3>Honest about scope</h3>
+        <p>Most of SOC 2 is people and process. The workbook lists the 22 procedural controls automation can't see, so nothing is mistaken for complete.</p>
+      </div>
+    </div>
+    <p class="stack">Python, boto3, AWS STS, IAM, CloudFormation, Terraform, Jinja2, openpyxl, pytest with moto, GitHub Actions.</p>
+  </section>
+
+  <section class="contact" aria-labelledby="contact-title">
+    <h2 id="contact-title">Getting ready for SOC 2?</h2>
+    <p>I help small teams get their AWS environment audit-ready and keep it that way.</p>
+    <a class="btn primary" href="mailto:judewakim@wakimworks.com?subject=SOC%202%20readiness">Email me</a>
+  </section>
+</main>
+
+<footer class="foot">
+  <img src="logo.svg" alt="" width="22" height="22">
+  <p>SOC 2 Evidence Kit, built by Jude Wakim. <a href="https://github.com/Judewakim/SOC2-Compliance-Workbook">Source on GitHub</a>. Not legal or audit advice; your auditor decides what is sufficient.</p>
+</footer>
+
+<script src="sample-report.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -212,3 +212,4 @@ soc2-evidence/
 credentials.json
 .terraform/
 *.tfstate*
+!web/sample/soc2-evidence-sample.zip

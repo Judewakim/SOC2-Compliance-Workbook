@@ -10,6 +10,10 @@ the evidence can be shown to be unaltered.
 It is built for startups and small teams preparing for a first SOC 2 Type I / Type II who need to know where
 their AWS environment stands and to hand an auditor something better than screenshots.
 
+**[Try the demo →](https://wakimworks.com/judewakim/soc2-evidence-kit/)** View a sample report for a fictional
+company, or run the scanner in AWS CloudShell and open your own report. The page has no backend; your report
+never leaves your browser.
+
 ```
 soc2-evidence/
 ├── report.html          # Human-readable report: score, failures, fixes, criteria coverage
@@ -62,6 +66,17 @@ flowchart LR
 ```
 
 ## Quick start
+
+Fastest path: open [AWS CloudShell](https://console.aws.amazon.com/cloudshell/home) in the account and run
+
+```bash
+pip3 install --user git+https://github.com/Judewakim/SOC2-Compliance-Workbook.git
+~/.local/bin/soc2kit scan --out soc2-evidence
+```
+
+then download `soc2-evidence/` with **Actions → Download file**. Python 3.9+ is supported, which matches CloudShell.
+
+From a laptop or CI:
 
 ```bash
 pip install git+https://github.com/Judewakim/SOC2-Compliance-Workbook.git
@@ -137,6 +152,7 @@ permissions, return a list of per-resource findings, then regenerate the policy 
 
 - [S3 Sentry](https://github.com/Judewakim/s3-misconfig): finds S3 misconfigurations
 - securitystack: deploys an AWS security baseline in one step
+- Demo page source: [`web/`](web/)
 - Portfolio: [wakimworks.com/judewakim](https://wakimworks.com/judewakim)
 
 ## License
