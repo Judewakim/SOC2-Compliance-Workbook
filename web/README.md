@@ -16,16 +16,14 @@ Static page for `wakimworks.com/judewakim/soc2-evidence-kit/`. No backend, no AP
 
 ## Publish
 
-Run in AWS CloudShell from the repo root. The site is the `wakimworks.com` bucket behind CloudFront
-(caching is disabled, so no invalidation is needed). Stage first, check it, then promote:
+The live copy is served from the [wakimworks.com](https://github.com/Judewakim/wakimworks.com) repo at
+`judewakim/soc2-evidence-kit/`. That repo deploys on push to `main` with `aws s3 sync --delete`, so
+uploading to the bucket by hand gets overwritten on the next deploy. To publish a change:
 
-```bash
-BUCKET=wakimworks.com
-aws s3 sync web/ "s3://$BUCKET/judewakim/_staging/soc2-evidence-kit/" --exclude "tools/*" --exclude "README.md" --delete
-# test https://wakimworks.com/judewakim/_staging/soc2-evidence-kit/
-aws s3 sync web/ "s3://$BUCKET/judewakim/soc2-evidence-kit/" --exclude "tools/*" --exclude "README.md" --delete
-aws s3 rm "s3://$BUCKET/judewakim/_staging/soc2-evidence-kit/" --recursive
-```
+1. Regenerate the sample if the scanner changed: `python web/tools/build_sample.py`
+2. Copy everything in `web/` except `tools/` and this README into `judewakim/soc2-evidence-kit/` in the
+   wakimworks.com repo, on a branch.
+3. Review the branch, then merge it to deploy. No CloudFront invalidation is needed; caching is disabled.
 
 Security headers (frame blocking, HSTS, nosniff) come from the distribution's managed SecurityHeadersPolicy.
 
