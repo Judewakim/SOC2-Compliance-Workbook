@@ -1,0 +1,47 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Soc2KitReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "access-analyzer:ListAnalyzers",
+        "backup:ListBackupPlans",
+        "cloudtrail:DescribeTrails",
+        "cloudtrail:GetTrailStatus",
+        "config:DescribeConfigurationRecorderStatus",
+        "config:DescribeConfigurationRecorders",
+        "ec2:DescribeFlowLogs",
+        "ec2:DescribeRegions",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeVpcs",
+        "ec2:GetEbsEncryptionByDefault",
+        "guardduty:GetDetector",
+        "guardduty:ListDetectors",
+        "iam:GenerateCredentialReport",
+        "iam:GetAccountPasswordPolicy",
+        "iam:GetAccountSummary",
+        "iam:GetCredentialReport",
+        "iam:GetPolicyVersion",
+        "iam:ListAttachedUserPolicies",
+        "iam:ListPolicies",
+        "iam:ListUserPolicies",
+        "iam:ListUsers",
+        "kms:DescribeKey",
+        "kms:GetKeyRotationStatus",
+        "kms:ListKeys",
+        "logs:DescribeLogGroups",
+        "rds:DescribeDBInstances",
+        "s3:GetAccountPublicAccessBlock",
+        "s3:GetBucketPolicy",
+        "s3:GetBucketPublicAccessBlock",
+        "s3:GetBucketVersioning",
+        "s3:ListAllMyBuckets",
+        "secretsmanager:ListSecrets",
+        "securityhub:DescribeHub",
+        "sts:GetCallerIdentity"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

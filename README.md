@@ -1,111 +1,144 @@
-# 📊 Amaani SOC 2 Compliance Automation Kit
+# SOC 2 Evidence Kit for AWS
 
-### Built by Jude Wakim — Amaani Cloud Security Architect  
-**Email:** judewakim@wakimworks.com  
-**Website:** www.wakim-works.com <br>
-**Version:** 1.0
+[![CI](https://github.com/Judewakim/SOC2-Compliance-Workbook/actions/workflows/ci.yml/badge.svg)](https://github.com/Judewakim/SOC2-Compliance-Workbook/actions/workflows/ci.yml)
 
----
+`soc2kit` scans an AWS account with a read-only role and produces an **auditor-ready evidence pack** for SOC 2:
+pass/fail results mapped to the AICPA Trust Services Criteria, the raw API responses behind every result,
+a SOC 2 workbook that also tracks the procedural controls automation cannot see, and a SHA-256 manifest so
+the evidence can be shown to be unaltered.
 
-## 🌩️ What is Amaani?
+It is built for startups and small teams preparing for a first SOC 2 Type I / Type II who need to know where
+their AWS environment stands and to hand an auditor something better than screenshots.
 
-Amaanī is a cloud security automation consultancy focused on helping financial enterprises harden, monitor, and validate their AWS environments against strict compliance standards such as SOC 2.
-
-Our mission is to make security and compliance achievable, repeatable, and provable — without sacrificing developer speed or cloud flexibility.
-
----
-
-## 📦 What’s Inside This ZIP?
-
-| File | Purpose |
-|------|---------|
-| `Amaani_SOC2_Compliance_Workbook.xlsx` | The master security checklist. Split into tabs by domain (IAM, Data Protection, Monitoring, etc.). Each row maps to a SOC 2 control. |
-| `amaani_compliance_checker.py` | The Python script that connects to your AWS account and fills in the “Compliant?” column for each item using CLI/API logic. |
-| `iam_compliance_user.tf` | Terraform code to create a new IAM user with all required read-only permissions to run the automation script. |
-| `amaani-compliance-readonly.json` | The exact IAM policy used to limit access to only what the script needs. |
-| `credentials.json` (self setup) | Google Service Account credentials (not included by default — see setup instructions below). |
-| `README.md` | You’re reading it :) |
-
----
-
-## ✅ Purpose of the Workbook
-
-The workbook helps your organization:
-- Identify gaps in security, availability, privacy, and other SOC 2 principles
-- Prove compliance through evidence (CLI output, screenshots, or policy configs)
-- Quantify your risk posture via automated scoring
-- Track remediation over time
-
----
-
-## 🧪 How to Run the Automation
-
-### Option A: Using Your Own AWS User
-Make sure your AWS CLI is configured and you have at least read-only permissions.
-
-```bash
-aws configure
-python amaani_compliance_checker.py
+```
+soc2-evidence/
+├── report.html          # Human-readable report: score, failures, fixes, criteria coverage
+├── report.json          # Machine-readable results
+├── workbook.xlsx        # SOC 2 workbook: automated results + manual controls with owners/status
+├── evidence/            # Raw API responses per check, timestamped (e.g. LOG-01.json)
+├── manifest.json        # SHA-256 of every file above
+└── soc2-evidence-<account>-<date>.zip
 ```
 
-### Option B: Using the Provided IAM User (Terraform)
-1. Deploy the IAM user and policy
-```hcl 
+## What it checks
+
+31 checks across IAM, logging and detection, data protection, network boundaries and availability.
+Run `soc2kit list-checks` for the full list.
+
+| Area | Examples | Criteria |
+|---|---|---|
+| Identity & access | Root MFA, no root keys, console MFA, 90-day key rotation, stale credentials, `*:*` policies, Access Analyzer | CC6.1-CC6.3 |
+| Logging & detection | Multi-region CloudTrail logging, log validation, AWS Config, GuardDuty, Security Hub, VPC flow logs, log retention | CC7.1-CC7.3, CC8.1 |
+| Data protection | S3 Block Public Access, TLS-only buckets, versioning, EBS default encryption, RDS encryption, KMS rotation, secret rotation | CC6.1, CC6.7, C1.1 |
+| Network | SSH/RDP open to the internet, default security groups | CC6.6 |
+| Availability | RDS backups and Multi-AZ, AWS Backup plans | A1.2 |
+
+Every result is one of four states. **A check is never marked as passing unless the evidence shows it passes.**
+
+| Status | Meaning |
+|---|---|
+| `PASS` | Evaluated, and every resource in scope meets the rule |
+| `FAIL` | At least one resource does not meet the rule (each one is listed with a fix) |
+| `ERROR` | Could not be evaluated, usually a missing permission. Never counted as a pass |
+| `N/A` | No resources in scope (e.g. no RDS databases). Not counted either way |
+
+The workbook also includes 22 **manual controls** (access reviews, background checks, incident response
+testing, vendor management, and so on), because most of a SOC 2 audit is process, not configuration.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Target["Your AWS account"]
+        Role["soc2kit-readonly role<br/>35 read-only actions<br/>External ID required"]
+        APIs["IAM · CloudTrail · Config · GuardDuty<br/>Security Hub · S3 · EC2 · RDS · KMS · Backup"]
+        Role --> APIs
+    end
+
+    CLI["soc2kit<br/>(laptop or CI)"] -- "sts:AssumeRole + ExternalId<br/>1-hour session" --> Role
+    CLI --> Engine["Check engine<br/>31 checks · all enabled regions<br/>every API response captured"]
+    Engine --> Pack["Evidence pack<br/>report.html · report.json<br/>workbook.xlsx · evidence/*.json<br/>manifest.json (SHA-256)"]
+    Pack --> Auditor["Auditor / compliance platform"]
+```
+
+## Quick start
+
+```bash
+pip install git+https://github.com/Judewakim/SOC2-Compliance-Workbook.git
+
+# Option 1: scan with your current credentials (must include the permissions in iam/soc2kit-readonly-policy.json)
+soc2kit scan --out soc2-evidence
+
+# Option 2 (recommended): deploy the read-only role, then scan through it
+soc2kit scan --role-arn arn:aws:iam::111122223333:role/soc2kit-readonly \
+             --external-id "$SOC2KIT_EXTERNAL_ID" \
+             --out soc2-evidence
+
+open soc2-evidence/report.html
+```
+
+Useful flags: `--regions us-east-1,us-west-2`, `--checks IAM-01,LOG-01`, `--fail-on-findings` (exit code 2
+on any failure, for CI gates), `--profile <name>`.
+
+## Deploying the read-only role
+
+The role has **no long-lived access keys**. The scanner assumes it with STS and must present an External ID,
+which protects against the [confused deputy problem](https://docs.aws.amazon.com/IAM/latest/UserGuide/confused-deputy.html).
+Delete the stack to revoke access.
+
+**CloudFormation**
+
+```bash
+aws cloudformation deploy \
+  --template-file iam/cloudformation/soc2kit-readonly-role.yaml \
+  --stack-name soc2kit-readonly \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides TrustedPrincipalArn=arn:aws:iam::111122223333:root ExternalId="$SOC2KIT_EXTERNAL_ID"
+```
+
+**Terraform**
+
+```bash
+cd iam/terraform
 terraform init
-terraform apply
+terraform apply -var trusted_principal_arn=arn:aws:iam::111122223333:root -var external_id="$SOC2KIT_EXTERNAL_ID"
 ```
 
-2. Use the output keys to configure AWS CLI
+## Security design
+
+- **Least privilege, generated from the code.** Each check declares the IAM actions it uses; `soc2kit policy`
+  prints the exact policy, and tests fail if the CloudFormation or Terraform policy drifts from it.
+- **Read-only, metadata only.** No write actions and no data-plane reads: it never reads S3 objects, secret
+  values or log contents. A test enforces this.
+- **No shell execution.** Every call goes through boto3. A test fails if `subprocess` or `shell=True` appears.
+- **Untrusted strings are neutralised.** Resource names (bucket names, log groups) are HTML-escaped in the
+  report and protected against spreadsheet formula injection in the workbook.
+- **Output contains account data.** Treat the evidence pack as confidential; `soc2-evidence/` is git-ignored.
+
+## Development
 
 ```bash
-aws configure
-python amaani_compliance_checker.py
+pip install -e ".[dev]"
+pytest -q          # 27 tests against mocked AWS (moto), no account needed
+ruff check soc2kit tests
 ```
 
----
+Adding a check is one decorated function in `soc2kit/checks/`. Declare its criteria, severity, scope and
+permissions, return a list of per-resource findings, then regenerate the policy with
+`soc2kit policy > iam/soc2kit-readonly-policy.json` and add the actions to the CloudFormation template.
 
-## 🧰 Prerequisites
-•	Python 3.8+ <br>
-•	boto3, gspread, and oauth2client installed:
+## Limitations
 
-```bash
-pip install boto3 gspread oauth2client
-```
+- Criteria mappings are guidance. Your auditor decides whether a control is sufficient.
+- Single account per run. AWS Organizations support (scanning every member account) is on the roadmap.
+- Automated checks cover the technical slice of SOC 2. The manual controls in the workbook still need evidence.
 
-•	A Google Service Account with Editor access to the Google Sheet <br>
-•	Share your workbook with the service account email <br>
-•	Save the credentials.json locally <br>
+## Related projects
 
+- [S3 Sentry](https://github.com/Judewakim/s3-misconfig): finds S3 misconfigurations
+- securitystack: deploys an AWS security baseline in one step
+- Portfolio: [wakimworks.com/judewakim](https://wakimworks.com/judewakim)
 
----
+## License
 
-## ✅ Final Structure of ZIP
-
-Amaani_SOC2_Compliance_Kit.zip <br>
-├── terraform/ <br>
-│   ├── iam-compliance-user.tf <br>
-├── scripts/ <br>
-│   ├── amaani-compliance-checker.py <br>
-│   ├── amaani-compliance-readonly.json <br>
-│   └── credentials.json  <-- added manually by client <br>
-├── assets/ <br>
-│   └── amaani-soc2-workbook.xlsx <br>
-├── .gitignore <br>
-├── README.md <br>
-├── credentials-creation.md <br>
-
----
-
-## 📬 Contact Amaani
-If you need help with setup, custom compliance automation, or SOC 2 Type II readiness:
-
-Jude Wakim <br>
-Cloud Security Architect <br>
-Email: judewakim@wakimworks.com <br>
-Based in: U.S. / Remote <br>
-Specialties: AWS Security, Terraform, SOC 2, Zero Trust Architectures <br>
-
-⸻
-
-Thank you for trusting Amaani with your cloud security journey. <br>
-“Security First. Compliance Included.” <br>
+MIT. Built by [Jude Wakim](https://github.com/Judewakim).

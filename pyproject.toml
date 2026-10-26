@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "soc2kit"
+version = "2.0.0"
+description = "Collect auditor-ready SOC 2 technical evidence from an AWS account."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Jude Wakim" }]
+dependencies = [
+  "boto3>=1.34",
+  "jinja2>=3.1",
+  "openpyxl>=3.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "moto[all]>=5", "ruff>=0.5"]
+
+[project.scripts]
+soc2kit = "soc2kit.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["soc2kit*"]
+
+[tool.setuptools.package-data]
+"soc2kit.report" = ["templates/*.j2"]
+
+[tool.ruff]
+line-length = 130
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S"]
+ignore = ["S101", "S105", "S106"]  # asserts and test passwords are fine in tests
