@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" font-family="Archivo, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">SOC 2 Evidence Kit architecture</title>
+<desc id="d">soc2kit runs on a laptop, in CI or in CloudShell, assumes a read-only role in the target account, runs 31 checks across every enabled region and writes an evidence pack with a SHA-256 manifest for the auditor.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#18222e"/></marker><marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1e6b52"/></marker></defs>
+<rect width="1200" height="600" fill="#ffffff"/>
+<rect x="20" y="20" width="780" height="340" fill="#e9eef2" rx="6"/>
+<text x="40" y="50" font-size="18" font-weight="700" fill="#18222e">soc2kit  (laptop, CI or CloudShell)</text>
+<text x="40" y="70" font-size="13" fill="#5b6875">Python + boto3. Nothing is sent anywhere but the AWS APIs it reads.</text>
+<rect x="40" y="120" width="180" height="80" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="130.0" y="147" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">soc2kit scan</text>
+<text x="130.0" y="167" text-anchor="middle" font-size="12" fill="#5b6875">CLI · --fail-on-findings</text>
+<text x="130.0" y="185" text-anchor="middle" font-size="12" fill="#5b6875">exit code gates CI</text>
+<rect x="280" y="120" width="180" height="80" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="370.0" y="147" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">Check engine</text>
+<text x="370.0" y="167" text-anchor="middle" font-size="12" fill="#5b6875">31 checks</text>
+<text x="370.0" y="185" text-anchor="middle" font-size="12" fill="#5b6875">every enabled region</text>
+<rect x="520" y="120" width="200" height="80" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="620.0" y="147" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">Evidence capture</text>
+<text x="620.0" y="167" text-anchor="middle" font-size="12" fill="#5b6875">every raw API response</text>
+<text x="620.0" y="185" text-anchor="middle" font-size="12" fill="#5b6875">saved per check</text>
+<rect x="280" y="250" width="180" height="80" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="370.0" y="277" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">Control mapping</text>
+<text x="370.0" y="297" text-anchor="middle" font-size="12" fill="#5b6875">Trust Services Criteria</text>
+<text x="370.0" y="315" text-anchor="middle" font-size="12" fill="#5b6875">every result mapped</text>
+<rect x="520" y="250" width="200" height="80" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="620.0" y="277" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">Pack builder</text>
+<text x="620.0" y="297" text-anchor="middle" font-size="12" fill="#5b6875">reports + workbook</text>
+<text x="620.0" y="315" text-anchor="middle" font-size="12" fill="#5b6875">SHA-256 manifest</text>
+<polyline points="220,151 280,151" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="460,151 520,151" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="370,200 370,250" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="620,200 620,250" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="460,281 520,281" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<rect x="840" y="20" width="340" height="340" rx="6" fill="#fff" stroke="#1e6b52" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="1010.0" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#1e6b52">Your AWS account</text>
+<rect x="860" y="64" width="300" height="80" rx="5" fill="#fff" stroke="#1e6b52" stroke-width="1.5"/>
+<text x="1010.0" y="91" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">soc2kit-readonly role</text>
+<text x="1010.0" y="111" text-anchor="middle" font-size="12" fill="#5b6875">36 read-only actions</text>
+<text x="1010.0" y="129" text-anchor="middle" font-size="12" fill="#5b6875">External ID required, no keys</text>
+<rect x="860" y="200" width="300" height="98" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="1010.0" y="227" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">Service APIs (read-only)</text>
+<text x="1010.0" y="247" text-anchor="middle" font-size="12" fill="#5b6875">IAM · CloudTrail · Config · GuardDuty</text>
+<text x="1010.0" y="265" text-anchor="middle" font-size="12" fill="#5b6875">Security Hub · S3 · EC2 · RDS</text>
+<text x="1010.0" y="283" text-anchor="middle" font-size="12" fill="#5b6875">KMS · Backup</text>
+<polyline points="1010,144 1010,200" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="370,120 370,98 860,98" fill="none" stroke="#1e6b52" stroke-width="1.5" marker-end="url(#g)"/>
+<text x="612" y="90" text-anchor="middle" font-size="11.5" fill="#1e6b52">sts:AssumeRole + ExternalId · 1-hour session</text>
+<rect x="20" y="380" width="1160" height="200" fill="#e9eef2" rx="6"/>
+<text x="40" y="410" font-size="18" font-weight="700" fill="#18222e">Evidence pack  (soc2-evidence/)</text>
+<text x="40" y="430" font-size="13" fill="#5b6875">Handed to the auditor or a compliance platform as-is; the manifest proves nothing was edited after the scan</text>
+<rect x="40" y="470" width="150" height="62" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="115.0" y="497" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">report.html</text>
+<text x="115.0" y="517" text-anchor="middle" font-size="12" fill="#5b6875">readable report</text>
+<rect x="210" y="470" width="150" height="62" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="285.0" y="497" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">report.json</text>
+<text x="285.0" y="517" text-anchor="middle" font-size="12" fill="#5b6875">machine-readable</text>
+<rect x="380" y="470" width="150" height="62" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="455.0" y="497" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">workbook.xlsx</text>
+<text x="455.0" y="517" text-anchor="middle" font-size="12" fill="#5b6875">procedural controls</text>
+<rect x="550" y="470" width="150" height="62" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="625.0" y="497" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">evidence/*.json</text>
+<text x="625.0" y="517" text-anchor="middle" font-size="12" fill="#5b6875">raw AWS responses</text>
+<rect x="720" y="470" width="150" height="62" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="795.0" y="497" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">manifest.json</text>
+<text x="795.0" y="517" text-anchor="middle" font-size="12" fill="#5b6875">SHA-256 per file</text>
+<rect x="910" y="470" width="250" height="62" rx="5" fill="#fff" stroke="#18222e" stroke-width="1.5"/>
+<text x="1035.0" y="497" text-anchor="middle" font-size="14" font-weight="700" fill="#18222e">Auditor</text>
+<text x="1035.0" y="517" text-anchor="middle" font-size="12" fill="#5b6875">or compliance platform</text>
+<polyline points="850,501 910,501" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="700,330 700,452" fill="none" stroke="#18222e" stroke-width="1.5"/>
+<polyline points="115,452 795,452" fill="none" stroke="#18222e" stroke-width="1.5"/>
+<polyline points="115,452 115,470" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="285,452 285,470" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="455,452 455,470" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="625,452 625,470" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+<polyline points="795,452 795,470" fill="none" stroke="#18222e" stroke-width="1.5" marker-end="url(#a)"/>
+</svg>
