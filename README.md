@@ -51,6 +51,11 @@ testing, vendor management, and so on), because most of a SOC 2 audit is process
 
 ## Architecture
 
+![SOC 2 Evidence Kit architecture](docs/architecture.svg)
+
+<details>
+<summary>Text version of the diagram</summary>
+
 ```mermaid
 flowchart LR
     subgraph Target["Your AWS account"]
@@ -64,6 +69,8 @@ flowchart LR
     Engine --> Pack["Evidence pack<br/>report.html · report.json<br/>workbook.xlsx · evidence/*.json<br/>manifest.json (SHA-256)"]
     Pack --> Auditor["Auditor / compliance platform"]
 ```
+
+</details>
 
 ## Quick start
 
